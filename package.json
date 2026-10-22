@@ -1,0 +1,17 @@
+{
+  "name": "st-sos",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "dev:vercel": "vercel dev",
+    "build": "echo \"nothing to build\"",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.2.0"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

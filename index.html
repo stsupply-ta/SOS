@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOS — Smart Order System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0f1117;--ink2:#3a3d4a;--ink3:#7a7f94;
+  --surface:#f0f2f8;--card:#ffffff;--border:#e4e6ef;
+  --accent:#2563eb;--accent-lt:#dbeafe;--accent-dk:#1d4ed8;
+  --ok:#16a34a;--ok-lt:#dcfce7;
+  --warn:#d97706;--warn-lt:#fef3c7;
+  --danger:#dc2626;--danger-lt:#fee2e2;
+  --purple:#7c3aed;--purple-lt:#ede9fe;
+  --teal:#0891b2;--teal-lt:#cffafe;
+  --radius:10px;--shadow:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.06);
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+}
+[data-theme="dark"] {
+  --ink:#f0f1f6;--ink2:#b0b3c6;--ink3:#5a5f74;
+  --surface:#0d0f18;--card:#161926;--border:#252838;
+  --accent:#3b82f6;--accent-lt:#1e3a6e;--accent-dk:#60a5fa;
+  --ok:#22c55e;--ok-lt:#14532d;
+  --warn:#f59e0b;--warn-lt:#78350f;
+  --danger:#ef4444;--danger-lt:#7f1d1d;
+  --purple:#a78bfa;--purple-lt:#3b0764;
+  --teal:#22d3ee;--teal-lt:#164e63;
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#f0f1f6;--ink2:#b0b3c6;--ink3:#5a5f74;
+    --surface:#0d0f18;--card:#161926;--border:#252838;
+    --accent:#3b82f6;--accent-lt:#1e3a6e;--accent-dk:#60a5fa;
+    --ok:#22c55e;--ok-lt:#14532d;
+    --warn:#f59e0b;--warn-lt:#78350f;
+    --danger:#ef4444;--danger-lt:#7f1d1d;
+    --purple:#a78bfa;--purple-lt:#3b0764;
+    --teal:#22d3ee;--teal-lt:#164e63;
+  }
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-padding-top:56px}
+body{font-family:var(--font);background:var(--surface);color:var(--ink);font-size:15px;line-height:1.6;min-height:100vh;padding-bottom:env(safe-area-inset-bottom,0px);transition:background .2s,color .2s}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+a{color:var(--accent);text-decoration:none}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:var(--card);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;gap:12px;padding:0 16px;padding-top:env(safe-area-inset-top,0px);backdrop-filter:blur(8px);background:rgba(var(--card-rgb,255,255,255),.92)}
+.topbar-logo{font-weight:800;font-size:18px;letter-spacing:-.4px;color:var(--ink);white-space:nowrap}
+.topbar-logo span{color:var(--accent)}
+.topbar-nav{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.topbar-nav::-webkit-scrollbar{display:none}
+.nav-btn{white-space:nowrap;padding:5px 11px;border-radius:6px;border:none;background:transparent;color:var(--ink2);font-weight:500;cursor:pointer;font-size:13px;transition:background .15s,color .15s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.nav-btn.active,.nav-btn:hover{background:var(--accent-lt);color:var(--accent)}
+.topbar-actions{display:flex;gap:8px;margin-left:auto}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:background .15s}
+.icon-btn:hover{background:var(--surface)}
+
+.main{max-width:980px;width:100%;margin:0 auto;padding:20px 16px;pointer-events:auto}
+
+/* PAGES */
+.page{display:none}.page.active{display:block}
+
+/* ─── HERO ─── */
+.hero{position:relative;overflow:hidden;border-radius:18px;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0c1a2e 100%);color:#fff;padding:40px 28px 36px;margin-bottom:24px}
+.hero-canvas{position:absolute;inset:0;pointer-events:none}
+.hero-inner{position:relative;z-index:2;pointer-events:auto}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;color:rgba(255,255,255,.45);margin-bottom:10px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.hero-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:#3b82f6;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+.hero-title{font-size:clamp(26px,5vw,44px);font-weight:800;line-height:1.1;margin-bottom:10px}
+.hero-title em{font-style:normal;color:#60a5fa}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.5);max-width:380px;margin-bottom:28px;line-height:1.6}
+.hero-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hero-stat{text-align:left;min-width:60px}
+.hero-stat-val{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.hero-stat-lbl{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px}
+.hero-stat-val.c-blue{color:#60a5fa}
+.hero-stat-val.c-amber{color:#fbbf24}
+.hero-stat-val.c-green{color:#4ade80}
+.hero-stat-val.c-white{color:#fff}
+.hero-topright{position:absolute;top:18px;right:18px;display:flex;gap:8px;z-index:3}
+
+/* floating orbs */
+.orb{position:absolute;border-radius:50%;pointer-events:none!important;filter:blur(40px);opacity:.18;animation:float 8s ease-in-out infinite}
+.orb1{width:220px;height:220px;background:#3b82f6;top:-60px;right:-40px;animation-delay:0s}
+.orb2{width:160px;height:160px;background:#8b5cf6;bottom:-40px;left:10%;animation-delay:-3s}
+.orb3{width:100px;height:100px;background:#06b6d4;bottom:20px;right:20%;animation-delay:-6s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+
+/* METRICS STRIP */
+.metrics-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden;pointer-events:auto}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+.metric-card.mc-blue::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.metric-card.mc-green::before{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.metric-card.mc-amber::before{background:linear-gradient(90deg,#d97706,#fbbf24)}
+.metric-card.mc-purple::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+.metric-card.mc-teal::before{background:linear-gradient(90deg,#0891b2,#22d3ee)}
+.metric-icon{font-size:18px;margin-bottom:6px}
+.metric-val{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1.1}
+.metric-lbl{font-size:11px;color:var(--ink3);margin-top:2px;font-weight:500}
+.metric-sub{font-size:10px;color:var(--ink3);margin-top:1px}
+
+/* MONTHLY RECAP */
+.monthly-recap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:20px}
+.recap-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.recap-title{font-weight:700;font-size:14px}
+.recap-month{font-size:12px;color:var(--ink3);font-weight:500}
+.recap-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+.recap-bar-label{width:90px;color:var(--ink2);font-weight:600;text-align:right;flex-shrink:0}
+.recap-bar-track{flex:1;height:10px;background:var(--surface);border-radius:20px;overflow:hidden}
+.recap-bar-fill{height:100%;border-radius:20px;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.recap-bar-val{width:44px;text-align:right;color:var(--ink2);font-weight:600;flex-shrink:0}
+
+/* RECENT ORDERS TABLE */
+.recent-orders-table{width:100%;border-collapse:collapse;font-size:13px}
+.recent-orders-table th{padding:8px 10px;text-align:left;border-bottom:2px solid var(--border);font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;background:var(--surface)}
+.recent-orders-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.recent-orders-table tr:hover td{background:var(--surface)}
+.recent-orders-table tr:last-child td{border-bottom:none}
+
+/* SECTION */
+.section-title{font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:20px}
+.shortcut-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:border-color .15s,transform .12s,box-shadow .15s;box-shadow:var(--shadow);position:relative;z-index:1}
+.shortcut-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.12)}
+.shortcut-icon{font-size:26px;margin-bottom:8px}
+.shortcut-title{font-weight:700;font-size:13px;margin-bottom:2px}
+.shortcut-sub{font-size:12px;color:var(--ink3)}
+
+/* ORDER CARD */
+.order-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color .15s;position:relative;z-index:1}
+.order-card:hover{border-color:var(--accent)}
+.order-id{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink3)}
+.order-name{font-weight:700;font-size:14px}
+.order-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}
+.order-qty{font-weight:700;color:var(--accent)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-lead{background:var(--purple-lt);color:var(--purple)}
+.badge-order{background:var(--accent-lt);color:var(--accent)}
+.badge-prod{background:var(--warn-lt);color:var(--warn)}
+.badge-ok{background:var(--ok-lt);color:var(--ok)}
+.badge-danger{background:var(--danger-lt);color:var(--danger)}
+.badge-gray{background:var(--surface);color:var(--ink3)}
+.badge-teal{background:var(--teal-lt);color:var(--teal)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;font-weight:600;font-size:13px;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-dk)}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:7px}
+.btn-ghost{background:transparent;color:var(--ink2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--surface)}
+.btn-ok{background:var(--ok);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+
+/* FORMS */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:5px}
+.form-control{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);color:var(--ink);font-size:14px;transition:border-color .15s}
+.form-control:focus{outline:none;border-color:var(--accent)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:500px){.form-row,.form-row-3{grid-template-columns:1fr}}
+select.form-control{cursor:pointer}
+
+/* SIZE MATRIX */
+.size-matrix{width:100%;border-collapse:collapse;font-size:12px}
+.size-matrix th,.size-matrix td{padding:6px 8px;border:1px solid var(--border);text-align:center}
+.size-matrix th{background:var(--surface);font-weight:700;color:var(--ink2);font-size:11px}
+.size-matrix td input{width:100%;border:none;background:transparent;text-align:center;font-family:var(--mono);color:var(--ink);padding:2px;font-size:12px}
+.size-matrix td input:focus{outline:none}
+.delta-pos{color:var(--ok);font-weight:700}
+.delta-neg{color:var(--danger);font-weight:700}
+.delta-zero{color:var(--ink3)}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:6px}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--surface);font-size:13px}
+.check-item.pass{background:var(--ok-lt)}
+.check-item.fail{background:var(--danger-lt)}
+.check-icon{font-size:15px;flex-shrink:0}
+.check-text{flex:1;font-weight:500}
+.check-text.fail-text{color:var(--danger)}
+
+/* PRICE TABLE */
+.price-table{width:100%;border-collapse:collapse;font-size:13px}
+.price-table th,.price-table td{padding:8px 12px;border-bottom:1px solid var(--border);text-align:left}
+.price-table th{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;background:var(--surface)}
+.price-table tr:hover td{background:var(--surface)}
+.price-tag-internal{background:var(--danger-lt);color:var(--danger);font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px}
+.price-tag-mktg{background:var(--ok-lt);color:var(--ok);font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+@media(min-width:600px){.modal-overlay{align-items:center;padding:20px}}
+.modal{background:var(--card);border-radius:18px 18px 0 0;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;padding:20px;position:relative}
+@media(min-width:600px){.modal{border-radius:16px}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{border:none;background:var(--surface);border-radius:6px;width:28px;height:28px;font-size:14px;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--surface);border-radius:8px;padding:3px;margin-bottom:16px}
+.tab{flex:1;padding:7px;border-radius:6px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;transition:background .15s,color .15s}
+.tab.active{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* STEPPER */
+.stepper{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none;gap:0}
+.stepper::-webkit-scrollbar{display:none}
+.step{display:flex;flex-direction:column;align-items:center;min-width:64px;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;top:11px;left:calc(50% + 13px);right:calc(-50% + 13px);height:2px;background:var(--border)}
+.step.done:not(:last-child)::after{background:var(--ok)}
+.step.active:not(:last-child)::after{background:linear-gradient(90deg,var(--accent),var(--border))}
+.step-dot{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--ink3);z-index:1;flex-shrink:0}
+.step.done .step-dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.step.active .step-dot{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 3px var(--accent-lt)}
+.step-lbl{font-size:9px;color:var(--ink3);margin-top:4px;text-align:center;max-width:62px;line-height:1.2}
+.step.active .step-lbl{color:var(--accent);font-weight:700}
+.step.done .step-lbl{color:var(--ok)}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:160px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ink3);font-size:14px;pointer-events:none}
+.search-wrap input{width:100%;padding:8px 12px 8px 32px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);color:var(--ink);font-size:13px}
+.search-wrap input:focus{outline:none;border-color:var(--accent)}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--ink3)}
+.empty-icon{font-size:36px;margin-bottom:8px}
+.empty-title{font-weight:700;color:var(--ink2);margin-bottom:4px;font-size:15px}
+.empty-sub{font-size:13px}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:500;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--ink);color:var(--card);padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.3);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* WA FAB */
+.wa-fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:24px;z-index:150;background:#25d366;color:#fff;border:none;border-radius:50px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(37,211,102,.5);display:flex;align-items:center;gap:8px;transition:transform .15s}@media(min-width:768px){.wa-fab{bottom:28px;right:28px}}
+.wa-fab:hover{transform:scale(1.05)}
+
+/* MISC */
+.divider{height:1px;background:var(--border);margin:16px 0}
+.text-sm{font-size:12px;color:var(--ink3)}
+.text-mono{font-family:var(--mono);font-size:12px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.flex-gap{display:flex;align-items:center;gap:8px}
+.mb-16{margin-bottom:16px}
+.mb-8{margin-bottom:8px}
+.w-full{width:100%}
+.mt-12{margin-top:12px}
+
+/* APPROVAL BANNER */
+.approval-banner{border-radius:10px;padding:12px 14px;font-size:13px;margin-bottom:14px}
+.approval-banner.approved{background:var(--ok-lt);border:1px solid var(--ok)}
+.approval-banner.pending{background:var(--warn-lt);border:1px solid var(--warn)}
+
+/* ===== DESKTOP FIXES ===== */
+@media(min-width:768px){
+  .topbar{padding:0 24px}
+  .main{padding:24px 24px}
+  .hero{padding:48px 36px 44px}
+  .card-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+  .metrics-strip{grid-template-columns:repeat(5,1fr)}
+}
+/* Ensure all interactive elements are always clickable */
+button,.btn,.nav-btn,.order-card,.shortcut-card,.modal-close,.icon-btn,
+.tab,.form-control,a[href],input,select,textarea{
+  pointer-events:auto!important;
+  position:relative;
+}
+/* Fix: hero buttons above canvas layer */
+.hero-topright{pointer-events:auto!important;z-index:10!important}
+.hero-inner .btn{pointer-events:auto!important;z-index:10!important}
+/* Fix: page container always receives clicks */
+.page,.page.active{pointer-events:auto!important}
+/* Fix: modal overlay open state */
+.modal-overlay.open{pointer-events:auto!important}
+.modal{pointer-events:auto!important}
+/* Prevent accidental text selection on buttons */
+button,.btn,.nav-btn,.tab{user-select:none;-webkit-user-select:none}
+
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-logo">S<span>O</span>S</div>
+  <div class="topbar-nav">
+    <button class="nav-btn active" onclick="showPage('home')">🏠 Beranda</button>
+    <button class="nav-btn" onclick="showPage('orders')">📋 Order</button>
+    <button class="nav-btn" onclick="showPage('production')">🏭 Produksi</button>
+    <button class="nav-btn" onclick="showPage('pricing')">💰 Pricing</button>
+    <button class="nav-btn" onclick="showPage('leads')">🌱 Lead</button>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost btn-sm" id="topbar-sync-btn" onclick="openModal('modal-sync')" title="Status Sinkronisasi Multi-Perangkat" style="padding:4px 8px;font-size:12px;gap:5px">
+      <span id="topbar-sync-dot" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block"></span>
+      <span id="topbar-sync-text">Sinkron</span>
+    </button>
+    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Tema">☀️</button>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-order')">+ Order</button>
+  </div>
+</nav>
+
+<!-- ===== HOME ===== -->
+<div class="page active" id="page-home">
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+    <canvas class="hero-canvas" id="heroCanvas"></canvas>
+    <div class="hero-inner">
+      <div class="hero-eyebrow"><span class="hero-eyebrow-dot"></span>Smart Order System</div>
+      <h1 class="hero-title">Semua order,<br><em>satu tempat.</em></h1>
+      <p class="hero-sub">Dari lead WhatsApp sampai packing — tanpa kertas, tanpa celah, tanpa hitung manual.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-val c-blue" id="stat-active">—</div><div class="hero-stat-lbl">Order Aktif</div></div>
+        <div class="hero-stat"><div class="hero-stat-val c-amber" id="stat-prod">—</div><div class="hero-stat-lbl">Produksi</div></div>
+        <div class="hero-stat"><div class="hero-stat-val c-green" id="stat-done">—</div><div class="hero-stat-lbl">Selesai Bulan Ini</div></div>
+        <div class="hero-stat"><div class="hero-stat-val c-white" id="stat-leads">—</div><div class="hero-stat-lbl">Lead Baru</div></div>
+        <div class="hero-stat"><div class="hero-stat-val c-white" id="stat-pcs">—</div><div class="hero-stat-lbl">Pcs Bulan Ini</div></div>
+      </div>
+    </div>
+    <div class="hero-topright">
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-order')">+ Order Baru</button>
+    </div>
+  </div>
+
+  <!-- METRICS STRIP -->
+  <div class="metrics-strip">
+    <div class="metric-card mc-blue"><div class="metric-icon">📋</div><div class="metric-val" id="m-total-orders">0</div><div class="metric-lbl">Total Order</div><div class="metric-sub" id="m-total-orders-sub"></div></div>
+    <div class="metric-card mc-green"><div class="metric-icon">✅</div><div class="metric-val" id="m-done">0</div><div class="metric-lbl">Selesai Bulan Ini</div><div class="metric-sub" id="m-done-sub"></div></div>
+    <div class="metric-card mc-amber"><div class="metric-icon">🏭</div><div class="metric-val" id="m-prod">0</div><div class="metric-lbl">Sedang Produksi</div><div class="metric-sub">Butuh perhatian</div></div>
+    <div class="metric-card mc-purple"><div class="metric-icon">📦</div><div class="metric-val" id="m-pcs">0</div><div class="metric-lbl">Pcs Bulan Ini</div><div class="metric-sub" id="m-pcs-sub"></div></div>
+    <div class="metric-card mc-teal"><div class="metric-icon">⏳</div><div class="metric-val" id="m-pending-approval">0</div><div class="metric-lbl">Pending Approval</div><div class="metric-sub">Harga belum disetujui</div></div>
+  </div>
+
+  <!-- MONTHLY RECAP -->
+  <div class="monthly-recap">
+    <div class="recap-header">
+      <div class="recap-title">📊 Rekap Order Bulan Berjalan</div>
+      <div class="recap-month" id="recap-month-label">—</div>
+    </div>
+    <div id="recap-bars"></div>
+    <div id="recap-empty" class="text-sm" style="display:none;text-align:center;padding:12px 0">Belum ada order bulan ini</div>
+  </div>
+
+  <!-- RECENT ORDERS TABLE -->
+  <div class="flex-between mb-8">
+    <div class="section-title" style="margin-bottom:0">Order Terkini</div>
+    <button class="btn btn-ghost btn-sm" onclick="showPage('orders')">Lihat semua →</button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px">
+    <div style="overflow-x:auto"><table class="recent-orders-table" id="home-orders-table">
+      <thead><tr><th>ID</th><th>Customer</th><th>Produk</th><th>Qty</th><th>Total</th><th>Status</th><th></th></tr></thead>
+      <tbody id="home-orders-tbody"></tbody>
+    </table></div>
+    <div id="home-orders-empty" class="empty" style="display:none;padding:24px"><div class="empty-icon">📋</div><div class="empty-title">Belum ada order</div></div>
+  </div>
+
+  <!-- SHORTCUTS -->
+  <div class="section-title mb-8">Akses Cepat</div>
+  <div class="card-grid">
+    <div class="shortcut-card" onclick="showPage('production')"><div class="shortcut-icon">🏭</div><div class="shortcut-title">Cek Produksi</div><div class="shortcut-sub">Pre-check & post-check</div></div>
+    <div class="shortcut-card" onclick="showPage('pricing')"><div class="shortcut-icon">💰</div><div class="shortcut-title">Master Pricing</div><div class="shortcut-sub">Kaos & Jersey</div></div>
+    <div class="shortcut-card" onclick="openModal('modal-new-lead')"><div class="shortcut-icon">🌱</div><div class="shortcut-title">Tambah Lead</div><div class="shortcut-sub">Dari WhatsApp ke order</div></div>
+    <div class="shortcut-card" onclick="openModal('modal-wa-recap')"><div class="shortcut-icon">📤</div><div class="shortcut-title">Rekap WA</div><div class="shortcut-sub">Generate & kirim</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== ORDERS ===== -->
+<div class="page" id="page-orders">
+<div class="main">
+  <div class="flex-between mb-16">
+    <h2 style="font-size:18px;font-weight:800">Daftar Order</h2>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-order')">+ Order Baru</button>
+  </div>
+  <div class="filter-bar">
+    <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" placeholder="Cari nama, ID, bahan…" id="order-search" oninput="renderOrders()"></div>
+    <select class="form-control" style="width:auto;min-width:130px" id="order-filter" onchange="renderOrders()">
+      <option value="">Semua Status</option>
+      <option>Lead</option><option>Konfirmasi</option><option>Desain &amp; DP</option>
+      <option>Stock Check</option><option>DTF/Material</option><option>Pre-check</option>
+      <option>Produksi</option><option>Laporan Produksi</option><option>Post-check</option>
+      <option>Packing</option><option>Siap</option><option>Selesai</option>
+    </select>
+  </div>
+  <div id="orders-list"></div>
+</div>
+</div>
+
+<!-- ===== PRODUKSI ===== -->
+<div class="page" id="page-production">
+<div class="main">
+  <h2 style="font-size:18px;font-weight:800;margin-bottom:16px">Produksi & QC</h2>
+  <div class="card mb-16">
+    <div class="form-group" style="margin-bottom:0"><label>Pilih Order</label>
+      <select class="form-control" id="prod-order-select" onchange="loadProdOrder()"><option value="">-- Pilih order --</option></select>
+    </div>
+  </div>
+  <div id="prod-detail" style="display:none">
+    <div class="card mb-16">
+      <div class="section-title mb-8">Status Produksi</div>
+      <div class="stepper" id="prod-stepper"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="advanceProdStatus()">Lanjut Stage →</button>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('modal-precheck')">Pre-check</button>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('modal-postcheck')">Post-check</button>
+      </div>
+    </div>
+    <div class="card mb-16">
+      <div class="flex-between mb-8"><div class="section-title" style="margin-bottom:0">Matriks Ukuran</div><button class="btn btn-ghost btn-sm" onclick="saveMatrix()">Simpan</button></div>
+      <div style="overflow-x:auto"><table class="size-matrix" id="size-matrix-table"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title mb-8">Catatan Produksi</div>
+      <textarea class="form-control" rows="3" placeholder="Catatan operator…" id="prod-notes"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="saveProdNotes()">Simpan</button>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('modal-wa-recap')">📤 Rekap WA</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== PRICING ===== -->
+<div class="page" id="page-pricing">
+<div class="main">
+  <div class="flex-between mb-16">
+    <h2 style="font-size:18px;font-weight:800">Master Pricing</h2>
+    <button class="btn btn-primary btn-sm" onclick="savePricing()">💾 Simpan</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tab-kaos')">Kaos Reguler</button>
+    <button class="tab" onclick="switchTab('tab-jersey')">Jersey</button>
+    <button class="tab" onclick="switchTab('tab-surcharge')">Surcharge</button>
+  </div>
+  <div class="tab-panel active" id="tab-kaos">
+    <div class="card mb-16">
+      <div class="flex-between mb-8">
+        <div class="section-title" style="margin-bottom:0">🧑 Bahan Kaos Dewasa — Harga Base S–XL</div>
+        <span class="badge badge-order">Dewasa</span>
+      </div>
+      <p class="text-sm mb-8">Sheet Marketing: boleh disampaikan CS. Harga internal: Pricing Engine only.</p>
+      <div style="overflow-x:auto"><table class="price-table" id="kaos-price-table"></table></div>
+      <div class="mt-12"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-material')">+ Tambah Bahan</button></div>
+    </div>
+    <div class="card mb-16">
+      <div class="flex-between mb-8">
+        <div class="section-title" style="margin-bottom:0">👶 Bahan Kaos Anak — Harga Base XS–2L</div>
+        <span class="badge badge-teal">Anak</span>
+      </div>
+      <p class="text-sm mb-8">Harga kaos anak biasanya lebih kecil. Isi harga per bahan. Kosong = pakai harga dewasa sebagai fallback.</p>
+      <div style="overflow-x:auto"><table class="price-table" id="kaos-anak-price-table"></table></div>
+    </div>
+  </div>
+  <div class="tab-panel" id="tab-jersey">
+    <div class="card mb-16">
+      <div class="flex-between mb-8">
+        <div class="section-title" style="margin-bottom:0">🧑 Jersey Dewasa — Harga per Bahan × Kerah</div>
+        <span class="badge badge-order">Dewasa S–7XL</span>
+      </div>
+      <p class="text-sm" style="margin-bottom:8px">Kosong = belum ditetapkan. Pricing Engine akan menolak order jika kosong.</p>
+      <div class="flex-gap mb-8">
+        <span class="text-sm">Filter ketebalan:</span>
+        <select class="form-control" style="width:auto" id="jersey-tebal-filter" onchange="renderJerseyTable()">
+          <option value="1">1 — Paling Tebal</option>
+          <option value="2">2 — Sedang</option>
+          <option value="3">3 — Tipis</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto" id="jersey-price-table-wrap"></div>
+    </div>
+    <div class="card mb-16">
+      <div class="flex-between mb-8">
+        <div class="section-title" style="margin-bottom:0">👶 Jersey Anak — Harga per Bahan × Kerah</div>
+        <span class="badge badge-teal">Anak XS–2L</span>
+      </div>
+      <p class="text-sm" style="margin-bottom:8px">Harga jersey anak biasanya lebih kecil. Kosong = pakai harga dewasa sebagai fallback.</p>
+      <div class="flex-gap mb-8">
+        <span class="text-sm">Filter ketebalan:</span>
+        <select class="form-control" style="width:auto" id="jersey-anak-tebal-filter" onchange="renderJerseyAnakTable()">
+          <option value="1">1 — Paling Tebal</option>
+          <option value="2">2 — Sedang</option>
+          <option value="3">3 — Tipis</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto" id="jersey-anak-price-table-wrap"></div>
+    </div>
+  </div>
+  <div class="tab-panel" id="tab-surcharge">
+    <div class="form-row">
+      <div class="card">
+        <div class="section-title mb-8">Surcharge Ukuran (Kaos & Jersey)</div>
+        <table class="price-table" id="surcharge-size-table"></table>
+      </div>
+      <div class="card">
+        <div class="section-title mb-8">Surcharge Model Lengan</div>
+        <p class="text-sm mb-8">Berlaku Kaos & Polo. Pendek tanpa Rib = Rp0.</p>
+        <table class="price-table" id="surcharge-model-table"></table>
+      </div>
+    </div>
+    <div class="card mt-12">
+      <div class="section-title mb-8">Jenis Sablon DTF</div>
+      <p class="text-sm mb-8">Surcharge per pcs ditentukan Admin/Owner saat approval order, bukan hardcode di sini.</p>
+      <div id="dtf-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      <div class="mt-12"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-dtf')">+ Tambah Jenis Sablon</button></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== LEADS ===== -->
+<div class="page" id="page-leads">
+<div class="main">
+  <div class="flex-between mb-16">
+    <h2 style="font-size:18px;font-weight:800">Lead</h2>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-lead')">+ Lead Baru</button>
+  </div>
+  <div id="leads-list"></div>
+</div>
+</div>
+
+<!-- ============ MODALS ============ -->
+
+<!-- NEW ORDER -->
+<div class="modal-overlay" id="modal-new-order">
+<div class="modal">
+  <div class="modal-header"><div class="modal-title">Order Baru</div><button class="modal-close" onclick="closeModal('modal-new-order')">✕</button></div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tab-ord-kaos')">Kaos Reguler</button>
+    <button class="tab" onclick="switchTab('tab-ord-jersey')">Jersey</button>
+  </div>
+
+  <!-- KAOS TAB -->
+  <div class="tab-panel active" id="tab-ord-kaos">
+    <div class="form-row">
+      <div class="form-group"><label>Nama Customer</label><input class="form-control" id="ord-name" placeholder="Budi Santoso"></div>
+      <div class="form-group"><label>No. WA</label><input class="form-control" id="ord-wa" placeholder="0812xxxx" type="tel"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Bahan</label>
+        <select class="form-control" id="ord-bahan" onchange="calcOrderEstimate();autoFillApproval()">
+          <option value="">Pilih bahan…</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Model Lengan</label>
+        <select class="form-control" id="ord-lengan" onchange="calcOrderEstimate()">
+          <option value="Pendek">Pendek (Tanpa Rib)</option>
+          <option value="Pendek Rib">Pendek + Rib</option>
+          <option value="Panjang">Panjang (Tanpa Rib)</option>
+          <option value="Panjang Rib">Panjang + Rib</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Warna</label><input class="form-control" id="ord-warna" placeholder="Putih, Hitam…"></div>
+      <div class="form-group"><label>Posisi Sablon</label>
+        <select class="form-control" id="ord-sablon-pos">
+          <option>Dada Kiri</option><option>Dada Full</option><option>Punggung</option><option>Custom</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Jenis Sablon DTF</label>
+      <select class="form-control" id="ord-dtf"><option value="">Tidak ada / Standar</option></select>
+    </div>
+
+    <!-- PRICING APPROVAL KAOS -->
+    <div class="approval-banner pending">
+      <div style="font-size:12px;font-weight:700;color:var(--warn);margin-bottom:10px">💼 Pricing Approval — Admin + Persetujuan Owner</div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0"><label>Harga Kaos/pcs S–XL (Rp)</label>
+          <input class="form-control" type="number" id="ord-approval-kaos" placeholder="dari master…" oninput="calcApprovalTotal()"></div>
+        <div class="form-group" style="margin-bottom:0"><label>Harga Sablon/DTF per pcs (Rp)</label>
+          <input class="form-control" type="number" id="ord-approval-sablon" placeholder="0" oninput="calcApprovalTotal()"></div>
+      </div>
+      <div class="form-row" style="margin-top:10px">
+        <div class="form-group" style="margin-bottom:0"><label>Disetujui oleh</label>
+          <input class="form-control" id="ord-approval-by" placeholder="Nama Owner/Admin"></div>
+        <div class="form-group" style="margin-bottom:0"><label>Total/pcs S–XL (preview)</label>
+          <div class="form-control" style="background:var(--surface);font-weight:700;color:var(--accent)" id="ord-approval-total">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN UKURAN KAOS -->
+    <div style="margin-top:14px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;font-weight:700;color:var(--ink2);display:flex;align-items:center;gap:6px">
+        <span>👶 Ukuran Anak</span>
+        <span class="badge badge-teal" style="font-size:10px">XS — 2L</span>
+      </div>
+      <div class="text-sm" id="sz-sub-anak-kaos" style="color:var(--ink3);font-weight:600">0 pcs</div>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:10px">
+      <table class="size-matrix">
+        <thead><tr id="sz-head-anak-kaos"></tr></thead>
+        <tbody><tr id="sz-body-anak-kaos"></tr></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:10px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;font-weight:700;color:var(--ink2);display:flex;align-items:center;gap:6px">
+        <span>🧑 Ukuran Dewasa</span>
+        <span class="badge badge-order" style="font-size:10px">S — 7XL</span>
+      </div>
+      <div class="text-sm" id="sz-sub-dewasa-kaos" style="color:var(--ink3);font-weight:600">0 pcs</div>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:14px">
+      <table class="size-matrix">
+        <thead><tr id="sz-head-dewasa-kaos"></tr></thead>
+        <tbody><tr id="sz-body-dewasa-kaos"></tr></tbody>
+      </table>
+    </div>
+
+    <!-- ESTIMATE -->
+    <div class="card" style="background:var(--accent-lt);border-color:var(--accent);margin-bottom:14px">
+      <div class="text-sm" style="color:var(--accent);font-weight:600">💡 Estimasi Master Pricing</div>
+      <div style="font-size:18px;font-weight:800;color:var(--accent);margin-top:4px" id="ord-price-est">—</div>
+      <div class="text-sm" style="color:var(--ink3)">Marketing: <span id="ord-price-mktg">—</span></div>
+    </div>
+    <div class="form-group"><label>Catatan</label><textarea class="form-control" rows="2" id="ord-notes" placeholder="Desain, referensi…"></textarea></div>
+  </div>
+
+  <!-- JERSEY TAB -->
+  <div class="tab-panel" id="tab-ord-jersey">
+    <div class="form-row">
+      <div class="form-group"><label>Nama Customer</label><input class="form-control" id="ord-j-name" placeholder="Nama customer"></div>
+      <div class="form-group"><label>No. WA</label><input class="form-control" id="ord-j-wa" placeholder="0812xxxx" type="tel"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Bahan Jersey</label>
+        <select class="form-control" id="ord-j-bahan"><option value="">Pilih bahan…</option></select>
+      </div>
+      <div class="form-group"><label>Ketebalan Kain</label>
+        <select class="form-control" id="ord-j-tebal">
+          <option value="1">1 — Paling Tebal</option>
+          <option value="2">2 — Sedang</option>
+          <option value="3">3 — Tipis</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Model Kerah</label>
+        <select class="form-control" id="ord-j-kerah">
+          <option>REGULAR V</option><option>V JEPANG</option><option>V POTONG</option>
+          <option>V SANGHAI</option><option>O NECK</option><option>POLO KANCING</option><option>V POLO</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Warna</label><input class="form-control" id="ord-j-warna" placeholder="Merah, Navy…"></div>
+    </div>
+
+    <!-- PRICING APPROVAL JERSEY -->
+    <div class="approval-banner pending">
+      <div style="font-size:12px;font-weight:700;color:var(--warn);margin-bottom:10px">💼 Pricing Approval Jersey — Admin + Owner</div>
+      <p class="text-sm" style="margin-bottom:10px">Harga jersey ditentukan per bahan + ketebalan. Isi setelah koordinasi dengan owner.</p>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0"><label>Harga Jersey/pcs S–XL (Rp)</label>
+          <input class="form-control" type="number" id="ord-j-approval-harga" placeholder="Rp/pcs S–XL" oninput="calcJerseyApprovalTotal()"></div>
+        <div class="form-group" style="margin-bottom:0"><label>Surcharge Kerah khusus (Rp)</label>
+          <input class="form-control" type="number" id="ord-j-approval-kerah-sc" placeholder="0 jika tidak ada" oninput="calcJerseyApprovalTotal()"></div>
+      </div>
+      <div class="form-row" style="margin-top:10px">
+        <div class="form-group" style="margin-bottom:0"><label>Disetujui oleh</label>
+          <input class="form-control" id="ord-j-approval-by" placeholder="Nama Owner/Admin"></div>
+        <div class="form-group" style="margin-bottom:0"><label>Total/pcs S–XL (preview)</label>
+          <div class="form-control" style="background:var(--surface);font-weight:700;color:var(--accent)" id="ord-j-approval-total">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN UKURAN JERSEY -->
+    <div style="margin-top:14px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;font-weight:700;color:var(--ink2);display:flex;align-items:center;gap:6px">
+        <span>👶 Ukuran Anak</span>
+        <span class="badge badge-teal" style="font-size:10px">XS — 2L</span>
+      </div>
+      <div class="text-sm" id="sz-sub-anak-jersey" style="color:var(--ink3);font-weight:600">0 pcs</div>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:10px">
+      <table class="size-matrix">
+        <thead><tr id="sz-head-anak-jersey"></tr></thead>
+        <tbody><tr id="sz-body-anak-jersey"></tr></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:10px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;font-weight:700;color:var(--ink2);display:flex;align-items:center;gap:6px">
+        <span>🧑 Ukuran Dewasa</span>
+        <span class="badge badge-order" style="font-size:10px">S — 7XL</span>
+      </div>
+      <div class="text-sm" id="sz-sub-dewasa-jersey" style="color:var(--ink3);font-weight:600">0 pcs</div>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:14px">
+      <table class="size-matrix">
+        <thead><tr id="sz-head-dewasa-jersey"></tr></thead>
+        <tbody><tr id="sz-body-dewasa-jersey"></tr></tbody>
+      </table>
+    </div>
+    <div class="form-group"><label>Catatan / Desain</label><textarea class="form-control" rows="2" id="ord-j-notes" placeholder="Referensi desain…"></textarea></div>
+  </div>
+
+  <button class="btn btn-primary w-full" onclick="saveOrder()">Buat Order</button>
+</div>
+</div>
+
+<!-- PRE-CHECK -->
+<div class="modal-overlay" id="modal-precheck">
+<div class="modal">
+  <div class="modal-header"><div class="modal-title">✅ Pre-check</div><button class="modal-close" onclick="closeModal('modal-precheck')">✕</button></div>
+  <div id="precheck-content"></div>
+  <button class="btn btn-ok w-full" style="margin-top:16px" onclick="completePrecheck()">Konfirmasi Pre-check</button>
+</div>
+</div>
+
+<!-- POST-CHECK -->
+<div class="modal-overlay" id="modal-postcheck">
+<div class="modal">
+  <div class="modal-header"><div class="modal-title">🔍 Post-check</div><button class="modal-close" onclick="closeModal('modal-postcheck')">✕</button></div>
+  <div id="postcheck-content"></div>
+  <button class="btn btn-ok w-full" style="margin-top:16px" onclick="completePostcheck()">Konfirmasi Post-check</button>
+</div>
+</div>
+
+<!-- NEW LEAD -->
+<div class="modal-overlay" id="modal-new-lead">
+<div class="modal">
+  <div class="modal-header"><div class="modal-title">🌱 Lead Baru</div><button class="modal-close" onclick="closeModal('modal-new-lead')">✕</button></div>
+  <div class="form-row">
+    <div class="form-group"><label>Nama</label><input class="form-control" id="lead-name" placeholder="Nama calon customer"></div>
+    <div class="form-group"><label>No. WA</label><input class="form-control" id="lead-wa" placeholder="0812xxxx" type="tel"></div>
+  </div>
+  <div class="form-group"><label>Produk Minat</label>
+    <select class="form-control" id="lead-product"><option>Kaos</option><option>Jersey</option><option>Polo</option><option>Lainnya</option></select>
+  </div>
+  <div class="form-group"><label>Estimasi Qty</label><input class="form-control" id="lead-qty" type="number" placeholder="12"></div>
+  <div class="form-group"><label>Catatan</label><textarea class="form-control" rows="2" id="lead-notes" placeholder="Sumber lead, kebutuhan…"></textarea></div>
+  <button class="btn btn-primary w-full" onclick="saveLead()">Simpan Lead</button>
+</div>
+</div>
+
+<!-- WA RECAP -->
+<div class="modal-overlay" id="modal-wa-recap">
+<div class="modal">
+  <div class="modal-header"><div class="modal-title">📤 Rekap WhatsApp</div><button class="modal-close" onclick="closeModal('modal-wa-recap')">✕</button></div>
+  <div class="form-group"><label>Pilih Order</label>
+    <select class="form-control" id="wa-order-select" onchange="generateWARecap()"><option value="">-- Pilih order --</option></select>
+  </div>
+  <div class="card" style="background:var(--surface);margin-bottom:14px">
+    <pre id="wa-recap-text" style="white-space:pre-wrap;font-size:12px;font-family:var(--mono);color:var(--ink2);line-height:1.5">Pilih order…</pre>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-ghost btn-sm" onclick="copyRecap()">📋 Copy</button>
+    <button class="btn btn-primary" onclick="sendWA()" id="btn-send-wa" disabled>📱 Buka WA</button>
+  </div>
+</div>
+</div>
+
+<!-- ADD MATERIAL -->
+<div class="modal-overlay" id="modal-add-material">
+<div class="modal">
+  <div class="modal-header"><div class="modal-title">+ Tambah Bahan</div><button class="modal-close" onclick="closeModal('modal-add-material')">✕</button></div>
+  <div class="form-group"><label>Kode</label><input class="form-control" id="mat-kode" placeholder="24CC"></div>
+  <div class="form-group"><label>Nama / Bahan</label><input class="form-control" id="mat-bahan" placeholder="Cotton Combed 24s"></div>
+  <div style="background:var(--accent-lt);border-radius:8px;padding:12px;margin-bottom:12px">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">🧑 HARGA DEWASA (S–7XL)</div>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0"><label>Harga Internal (Rp)</label><input class="form-control" id="mat-harga" type="number" placeholder="45000"></div>
+      <div class="form-group" style="margin-bottom:0"><label>Harga Marketing (Rp)</label><input class="form-control" id="mat-harga-mktg" type="number" placeholder="45000"></div>
+    </div>
+  </div>
+  <div style="background:var(--teal-lt);border-radius:8px;padding:12px;margin-bottom:12px">
+    <div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:8px">👶 HARGA ANAK (XS–2L) — kosong / 0 = fallback ke harga dewasa</div>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0"><label>Harga Internal Anak (Rp)</label><input class="form-control" id="mat-harga-anak" type="number" placeholder="0"></div>
+      <div class="form-group" style="margin-bottom:0"><label>Harga Marketing Anak (Rp)</label><input class="form-control" id="mat-harga-mktg-anak" type="number" placeholder="0"></div>
+    </div>
+  </div>
+  <div class="form-group"><label>Catatan</label><input class="form-control" id="mat-catatan" placeholder="MOQ, dll."></div>
+  <button class="btn btn-primary w-full" onclick="addMaterial()">Tambah</button>
+</div>
+</div>
+
+<!-- ADD DTF -->
+<div class="modal-overlay" id="modal-add-dtf">
+<div class="modal">
+  <div class="modal-header"><div class="modal-title">+ Jenis Sablon DTF</div><button class="modal-close" onclick="closeModal('modal-add-dtf')">✕</button></div>
+  <div class="form-group"><label>Nama Jenis Sablon</label><input class="form-control" id="dtf-name" placeholder="DTF Premium Reguler"></div>
+  <p class="text-sm" style="margin-bottom:12px">Surcharge per pcs ditentukan Admin saat approval order, tidak perlu diisi di sini.</p>
+  <button class="btn btn-primary w-full" onclick="addDTF()">Tambah</button>
+</div>
+</div>
+
+<!-- ORDER DETAIL -->
+<div class="modal-overlay" id="modal-order-detail">
+<div class="modal" style="max-width:680px">
+  <div class="modal-header"><div class="modal-title" id="detail-modal-title">Detail Order</div><button class="modal-close" onclick="closeModal('modal-order-detail')">✕</button></div>
+  <div id="order-detail-content"></div>
+</div>
+</div>
+
+<!-- INVOICE -->
+<div class="modal-overlay" id="modal-invoice">
+<div class="modal" style="max-width:700px">
+  <div class="modal-header"><div class="modal-title">🧾 Invoice</div><button class="modal-close" onclick="closeModal('modal-invoice')">✕</button></div>
+  <div id="invoice-content"></div>
+  <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="printInvoice()">🖨️ Print / PDF</button>
+    <button class="btn btn-ghost btn-sm" onclick="copyInvoiceWA()">📋 Copy Rekap WA</button>
+  </div>
+</div>
+</div>
+
+<!-- MULTI-DEVICE SYNC MODAL -->
+<div class="modal-overlay" id="modal-sync">
+<div class="modal" style="max-width:620px">
+  <div class="modal-header">
+    <div class="modal-title">🔄 Sinkronisasi Multi-Perangkat</div>
+    <button class="modal-close" onclick="closeModal('modal-sync')">✕</button>
+  </div>
+  
+  <div class="card mb-16" id="sync-status-box" style="background:var(--surface);border:1.5px solid var(--border)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px">
+        <span id="modal-sync-badge" class="badge badge-ok">🟢 Terhubung</span>
+        <span id="modal-sync-title">Server Sinkronisasi Aktif</span>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="triggerManualSync()">🔄 Sinkron Sekarang</button>
+    </div>
+    <div class="text-sm" id="modal-sync-desc" style="color:var(--ink2);margin-bottom:6px">Data tersimpan di server dan otomatis sinkron antar semua perangkat (PC, HP, Tablet).</div>
+    <div class="text-sm" style="color:var(--ink3);font-size:11px" id="modal-sync-time">Terakhir sinkron: —</div>
+  </div>
+
+  <!-- NETWORK ACCESS URLS (WIFI) -->
+  <div class="card mb-16">
+    <div class="section-title mb-8">📱 Buka di HP / Tablet Lain (Jaringan Wi-Fi Sama)</div>
+    <p class="text-sm mb-8">Buka browser di HP/Tablet yang terhubung ke jaringan Wi-Fi yang sama, lalu ketik alamat ini:</p>
+    <div id="sync-network-urls" style="display:flex;flex-direction:column;gap:6px">
+      <div class="form-control text-mono" style="background:var(--surface);font-weight:700;color:var(--accent);display:flex;justify-content:space-between;align-items:center">
+        <span id="sync-main-url">http://localhost:3000</span>
+        <button class="btn btn-ghost btn-sm" onclick="copySyncUrl()">📋 Salin Link</button>
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--ink3)">
+      💡 <strong>Tips Komputer:</strong> Cukup klik 2x file <code>start.bat</code> di folder <code>web1</code> untuk menyalakan server lokal kapan saja.
+    </div>
+  </div>
+
+  <!-- CLOUD SYNC CONFIGURATION -->
+  <div class="card mb-16">
+    <div class="section-title mb-8">🌐 Pengaturan Cloud / Server Jarak Jauh</div>
+    <p class="text-sm mb-8">Jika ingin sinkron lewat internet (tanpa perlu 1 jaringan Wi-Fi), masukkan URL Cloud API / Google Apps Script Web App:</p>
+    <div class="form-group mb-8">
+      <label>URL Endpoint Sync (Opsional)</label>
+      <input class="form-control text-mono" id="sync-custom-url" placeholder="https://script.google.com/macros/s/.../exec atau http://IP:PORT" style="font-size:12px">
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost btn-sm" onclick="resetSyncConfig()">Reset ke Lokal</button>
+      <button class="btn btn-primary btn-sm" onclick="saveCustomSyncConfig()">Simpan Pengaturan</button>
+    </div>
+  </div>
+
+  <!-- BACKUP & RESTORE -->
+  <div class="card">
+    <div class="section-title mb-8">💾 Cadangan Data Manual (Backup & Restore)</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="exportDataBackup()">📥 Unduh Backup JSON</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('sync-file-import').click()">📤 Pulihkan dari File JSON</button>
+      <input type="file" id="sync-file-import" accept=".json" style="display:none" onchange="importDataBackup(event)">
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- WA FAB -->
+<button class="wa-fab" onclick="openModal('modal-wa-recap')">📱 Rekap WA</button>
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ================================================================
+// DATA & UKURAN (DEWASA S-7XL & ANAK XS-2L)
+// ================================================================
+const KEY='sos_data_v3';
+
+const SIZES_ANAK = [
+  { key: 'XS (Anak)', label: 'XS' },
+  { key: 'S (Anak)',  label: 'S' },
+  { key: 'M (Anak)',  label: 'M' },
+  { key: 'L (Anak)',  label: 'L' },
+  { key: 'XL (Anak)', label: 'XL' },
+  { key: '2L (Anak)', label: '2L' }
+];
+
+const SIZES_DEWASA = [
+  { key: 'S',   label: 'S' },
+  { key: 'M',   label: 'M' },
+  { key: 'L',   label: 'L' },
+  { key: 'XL',  label: 'XL' },
+  { key: '2XL', label: '2XL' },
+  { key: '3XL', label: '3XL' },
+  { key: '4XL', label: '4XL' },
+  { key: '5XL', label: '5XL' },
+  { key: '6XL', label: '6XL' },
+  { key: '7XL', label: '7XL' }
+];
+
+const ALL_SIZES = [...SIZES_ANAK.map(s => s.key), ...SIZES_DEWASA.map(s => s.key)];
+const STAGES=['Lead','Konfirmasi','Desain & DP','Stock Check','DTF/Material','Pre-check','Produksi','Laporan Produksi','Post-check','Packing','Siap','Selesai'];
+
+function defData(){return{version:'v3.1',updatedAt:new Date().toISOString(),orders:[],leads:[],pricing:{version:'v3',kaos:[
+  {kode:'20CC',bahan:'Cotton Combed 20s',harga:50000,mktg:50000,harga_anak:35000,mktg_anak:35000,catatan:''},
+  {kode:'24CC',bahan:'Cotton Combed 24s',harga:45000,mktg:45000,harga_anak:30000,mktg_anak:30000,catatan:''},
+  {kode:'30CC',bahan:'Cotton Combed 30s',harga:40000,mktg:40000,harga_anak:28000,mktg_anak:28000,catatan:''},
+  {kode:'BTM',bahan:'BTM',harga:35000,mktg:35000,harga_anak:25000,mktg_anak:25000,catatan:'MOQ 1 Lusin'},
+  {kode:'KH',bahan:'KH',harga:27000,mktg:27000,harga_anak:20000,mktg_anak:20000,catatan:'MOQ 1 Lusin'},
+  {kode:'LTC',bahan:'Lacost TC',harga:55000,mktg:55000,harga_anak:40000,mktg_anak:40000,catatan:''},
+  {kode:'LP',bahan:'Lacost Premium',harga:70000,mktg:70000,harga_anak:50000,mktg_anak:50000,catatan:'MOQ 6 Pcs'},
+],jersey_bahan:['WAFLE','EMBOSS','AIRWALK','BENZEMA','MILANO','DROPNEEDLE','POINTELE','BRAZIL','EMBOSS STRAW','YONEX','RHABIT','JAGUARD','NIKE'],
+jersey_kerah:['REGULAR V','V JEPANG','V POTONG','V SANGHAI','O NECK','POLO KANCING','V POLO'],
+jersey_prices:{},
+jersey_anak_prices:{},
+surcharge_ukuran:[
+  {ukuran:'XS (Anak)',tambahan:0},{ukuran:'S (Anak)',tambahan:0},{ukuran:'M (Anak)',tambahan:0},{ukuran:'L (Anak)',tambahan:0},{ukuran:'XL (Anak)',tambahan:0},{ukuran:'2L (Anak)',tambahan:0},
+  {ukuran:'S',tambahan:0},{ukuran:'M',tambahan:0},{ukuran:'L',tambahan:0},{ukuran:'XL',tambahan:0},
+  {ukuran:'2XL',tambahan:5000},{ukuran:'3XL',tambahan:10000},{ukuran:'4XL',tambahan:15000},
+  {ukuran:'5XL',tambahan:20000},{ukuran:'6XL',tambahan:25000},{ukuran:'7XL',tambahan:30000},
+],
+surcharge_model:[
+  {model:'Pendek + Rib',tambahan:5000},{model:'Panjang (Tanpa Rib)',tambahan:10000},{model:'Panjang + Rib',tambahan:15000}
+],
+dtf:['DTF Premium Reguler','DTF Flouo Neon','Reflektif Menyala Base Silver','Reflektif Menyala Dark Rainbow']}};}
+
+let APP;
+try{APP=JSON.parse(localStorage.getItem(KEY))||defData();}catch{APP=defData();}
+const _def=defData();
+if(!APP||typeof APP!=='object')APP=_def;
+if(!Array.isArray(APP.orders))APP.orders=[];
+if(!Array.isArray(APP.leads))APP.leads=[];
+if(!APP.pricing||typeof APP.pricing!=='object')APP.pricing=_def.pricing;
+else{
+  if(!Array.isArray(APP.pricing.kaos))APP.pricing.kaos=_def.pricing.kaos;
+  // Migrasi: tambah harga_anak / mktg_anak jika belum ada di bahan kaos lama
+  APP.pricing.kaos.forEach(k=>{
+    if(k.harga_anak===undefined)k.harga_anak=0;
+    if(k.mktg_anak===undefined)k.mktg_anak=0;
+  });
+  if(!Array.isArray(APP.pricing.jersey_bahan))APP.pricing.jersey_bahan=_def.pricing.jersey_bahan;
+  if(!Array.isArray(APP.pricing.jersey_kerah))APP.pricing.jersey_kerah=_def.pricing.jersey_kerah;
+  if(!APP.pricing.jersey_prices||typeof APP.pricing.jersey_prices!=='object')APP.pricing.jersey_prices={};
+  if(!APP.pricing.jersey_anak_prices||typeof APP.pricing.jersey_anak_prices!=='object')APP.pricing.jersey_anak_prices={};
+  if(!Array.isArray(APP.pricing.surcharge_ukuran))APP.pricing.surcharge_ukuran=_def.pricing.surcharge_ukuran;
+  else{
+    const existingSizes=new Set(APP.pricing.surcharge_ukuran.map(s=>s.ukuran));
+    SIZES_ANAK.slice().reverse().forEach(sa=>{
+      if(!existingSizes.has(sa.key)){APP.pricing.surcharge_ukuran.unshift({ukuran:sa.key,tambahan:0});}
+    });
+  }
+  if(!Array.isArray(APP.pricing.surcharge_model))APP.pricing.surcharge_model=_def.pricing.surcharge_model;
+  if(!Array.isArray(APP.pricing.dtf))APP.pricing.dtf=_def.pricing.dtf;
+}
+function save(skipRemoteSync=false){
+  APP.updatedAt=new Date().toISOString();
+  localStorage.setItem(KEY,JSON.stringify(APP));
+  if(!skipRemoteSync&&typeof syncPush==='function')syncPush();
+}
+function genId(){return'SOS-'+Date.now().toString(36).toUpperCase().slice(-5);}
+function rp(n){if(n===null||n===undefined||n==='')return'—';return'Rp'+Number(n).toLocaleString('id-ID');}
+function getLenganSurcharge(l){const m={'Pendek':0,'Pendek Rib':5000,'Panjang':10000,'Panjang Rib':15000};const sc=APP.pricing?.surcharge_model?.find(s=>s.model.toLowerCase().replace(/ /g,'')===(''+l).toLowerCase().replace(/ /g,''));return sc?sc.tambahan:(m[l]||0);}
+
+// ================================================================
+// SIZE MATRIX BUILDER (Anak XS–2L & Dewasa S–7XL)
+// ================================================================
+function sizeKeyToId(k){return String(k).replace(/[\s\(\)]/g,'_').replace(/_+/g,'_').replace(/_$/,'');}
+function sizeInputId(prefix,k){return `${prefix}-${sizeKeyToId(k)}`;}
+
+function buildSizeSection(headId, bodyId, sizeList, prefix, oninputFn){
+  const head=document.getElementById(headId);
+  const body=document.getElementById(bodyId);
+  if(!head||!body)return;
+  head.innerHTML=sizeList.map(s=>`<th>${s.label}</th>`).join('');
+  body.innerHTML=sizeList.map(s=>`<td><input type="number" min="0" value="0" id="${sizeInputId(prefix,s.key)}" oninput="${oninputFn||''}" style="width:38px"></td>`).join('');
+}
+
+function initSizeBreakdownInputs(){
+  buildSizeSection('sz-head-anak-kaos','sz-body-anak-kaos',SIZES_ANAK,'sz','calcOrderEstimate()');
+  buildSizeSection('sz-head-dewasa-kaos','sz-body-dewasa-kaos',SIZES_DEWASA,'sz','calcOrderEstimate()');
+  buildSizeSection('sz-head-anak-jersey','sz-body-anak-jersey',SIZES_ANAK,'jsz','calcJerseyEstimate()');
+  buildSizeSection('sz-head-dewasa-jersey','sz-body-dewasa-jersey',SIZES_DEWASA,'jsz','calcJerseyEstimate()');
+  updateBreakdownSubtotals('sz');
+  updateBreakdownSubtotals('jsz');
+}
+
+function updateBreakdownSubtotals(prefix){
+  const isKaos=prefix==='sz';
+  const aSpan=document.getElementById(isKaos?'sz-sub-anak-kaos':'sz-sub-anak-jersey');
+  const dSpan=document.getElementById(isKaos?'sz-sub-dewasa-kaos':'sz-sub-dewasa-jersey');
+  let qA=0, qD=0;
+  SIZES_ANAK.forEach(s=>{qA+=parseInt(document.getElementById(sizeInputId(prefix,s.key))?.value)||0;});
+  SIZES_DEWASA.forEach(s=>{qD+=parseInt(document.getElementById(sizeInputId(prefix,s.key))?.value)||0;});
+  if(aSpan)aSpan.textContent=qA+' pcs';
+  if(dSpan)dSpan.textContent=qD+' pcs';
+}
+
+function getSizes(prefix){
+  const out={};
+  ALL_SIZES.forEach(s=>{
+    const v=parseInt(document.getElementById(sizeInputId(prefix,s))?.value)||0;
+    if(v>0)out[s]=v;
+  });
+  return out;
+}
+function totalQty(sizes){return Object.values(sizes||{}).reduce((a,b)=>a+b,0);}
+
+// ================================================================
+// NAV
+// ================================================================
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const map={home:0,orders:1,production:2,pricing:3,leads:4};
+  document.querySelectorAll('.nav-btn')[map[id]]?.classList.add('active');
+  if(id==='orders')renderOrders();
+  if(id==='production')renderProdPage();
+  if(id==='pricing')renderPricing();
+  if(id==='leads')renderLeads();
+  if(id==='home')renderHome();
+}
+
+// ================================================================
+// THEME
+// ================================================================
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  document.getElementById('theme-btn').textContent=next==='dark'?'🌙':'☀️';
+  localStorage.setItem('sos_theme',next);
+}
+(function initTheme(){
+  const saved=localStorage.getItem('sos_theme');
+  const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  const t=saved||sys;
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('theme-btn').textContent=t==='dark'?'🌙':'☀️';
+})();
+
+// ================================================================
+// HERO CANVAS (interactive — follow mouse)
+// ================================================================
+(function(){
+  const canvas=document.getElementById('heroCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  let W,H,dots=[],mouse={x:-999,y:-999};
+  function resize(){W=canvas.offsetWidth||canvas.parentElement?.offsetWidth||300;H=canvas.offsetHeight||canvas.parentElement?.offsetHeight||200;canvas.width=W;canvas.height=H;
+    dots=Array.from({length:32},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,r:Math.random()*2+.8}));}
+  const heroEl=canvas.closest('.hero');heroEl?.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;},{passive:true});
+  heroEl?.addEventListener('mouseleave',()=>{mouse.x=-999;mouse.y=-999;},{passive:true});
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    dots.forEach(d=>{
+      const dx=mouse.x-d.x,dy=mouse.y-d.y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<100){d.vx-=dx/dist*.04;d.vy-=dy/dist*.04;}
+      d.x+=d.vx;d.y+=d.vy;
+      if(d.x<0||d.x>W)d.vx*=-.9;if(d.y<0||d.y>H)d.vy*=-.9;
+      d.vx*=.998;d.vy*=.998;
+      ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,.7)';ctx.fill();
+    });
+    for(let i=0;i<dots.length;i++)for(let j=i+1;j<dots.length;j++){
+      const dx=dots[i].x-dots[j].x,dy=dots[i].y-dots[j].y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<90){ctx.beginPath();ctx.moveTo(dots[i].x,dots[i].y);ctx.lineTo(dots[j].x,dots[j].y);
+        ctx.strokeStyle=`rgba(255,255,255,${.25*(1-dist/90)})`;ctx.lineWidth=.8;ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  }
+  resize();draw();window.addEventListener('resize',resize);
+})();
+
+// ================================================================
+// MODALS
+// ================================================================
+function openModal(id){
+  if(id==='modal-new-order')initOrderForm();
+  if(id==='modal-wa-recap')populateWASelect();
+  if(id==='modal-precheck')renderPrecheck();
+  if(id==='modal-postcheck')renderPostcheck();
+  if(id==='modal-sync')renderSyncModal();
+  document.getElementById(id)?.classList.add('open');
+}
+function closeModal(id){document.getElementById(id)?.classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+// ================================================================
+// TOAST
+// ================================================================
+function toast(msg,type='ok'){
+  const c=document.getElementById('toast-container');
+  const el=document.createElement('div');el.className='toast';
+  el.style.background=type==='err'?'var(--danger)':type==='warn'?'var(--warn)':'var(--ink)';
+  el.textContent=msg;c.appendChild(el);
+  setTimeout(()=>el.classList.add('show'),10);
+  setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),300);},2800);
+}
+
+// ================================================================
+// TABS
+// ================================================================
+function switchTab(id){
+  const parent=document.getElementById(id)?.closest('.page,.modal,.main');
+  if(!parent)return;
+  parent.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  parent.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  parent.querySelectorAll('.tab-panel').forEach((p,i)=>{if(p.id===id)parent.querySelectorAll('.tab')[i]?.classList.add('active');});
+}
+
+// ================================================================
+// HOME
+// ================================================================
+function renderHome(){
+  updateMetrics();
+  renderMonthlyRecap();
+  renderHomeTable();
+}
+
+function updateMetrics(){
+  const now=new Date(),mo=now.getMonth(),yr=now.getFullYear();
+  const thisMonth=o=>{const d=new Date(o.updatedAt||o.createdAt);return d.getMonth()===mo&&d.getFullYear()===yr;};
+  const active=APP.orders.filter(o=>o.status!=='Selesai').length;
+  const prod=APP.orders.filter(o=>o.status==='Produksi').length;
+  const done=APP.orders.filter(o=>o.status==='Selesai'&&thisMonth(o)).length;
+  const leads=APP.leads.filter(l=>l.status==='Baru').length;
+  const pcs=APP.orders.filter(o=>thisMonth(o)).reduce((s,o)=>s+totalQty(o.sizes||{}),0);
+  const pendingApproval=APP.orders.filter(o=>o.status!=='Selesai'&&(!o.pricing?.approvalBy)).length;
+  // hero
+  document.getElementById('stat-active').textContent=active;
+  document.getElementById('stat-prod').textContent=prod;
+  document.getElementById('stat-done').textContent=done;
+  document.getElementById('stat-leads').textContent=leads;
+  document.getElementById('stat-pcs').textContent=pcs;
+  // metrics strip
+  document.getElementById('m-total-orders').textContent=APP.orders.length;
+  document.getElementById('m-total-orders-sub').textContent='Total semua waktu';
+  document.getElementById('m-done').textContent=done;
+  document.getElementById('m-done-sub').textContent=`dari ${APP.orders.filter(thisMonth).length} order bulan ini`;
+  document.getElementById('m-prod').textContent=prod;
+  document.getElementById('m-pcs').textContent=pcs;
+  document.getElementById('m-pcs-sub').textContent='bulan ini';
+  document.getElementById('m-pending-approval').textContent=pendingApproval;
+}
+
+function renderMonthlyRecap(){
+  const now=new Date(),mo=now.getMonth(),yr=now.getFullYear();
+  const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  document.getElementById('recap-month-label').textContent=months[mo]+' '+yr;
+  const thisMonth=o=>{const d=new Date(o.createdAt);return d.getMonth()===mo&&d.getFullYear()===yr;};
+  const orders=APP.orders.filter(thisMonth);
+  const barsEl=document.getElementById('recap-bars');
+  const emptyEl=document.getElementById('recap-empty');
+  if(!orders.length){barsEl.style.display='none';emptyEl.style.display='block';return;}
+  barsEl.style.display='block';emptyEl.style.display='none';
+  const stageCount={};
+  STAGES.forEach(s=>stageCount[s]=0);
+  orders.forEach(o=>stageCount[o.status]=(stageCount[o.status]||0)+1);
+  const maxVal=Math.max(...Object.values(stageCount),1);
+  const colors={'Selesai':'#16a34a','Packing':'#0891b2','Post-check':'#7c3aed','Produksi':'#d97706','Pre-check':'#f59e0b','Stock Check':'#3b82f6','Desain & DP':'#8b5cf6','Konfirmasi':'#2563eb','Lead':'#6b7280'};
+  const toShow=STAGES.slice().reverse().filter(s=>stageCount[s]>0);
+  barsEl.innerHTML=toShow.map(s=>`
+    <div class="recap-bar-row">
+      <div class="recap-bar-label">${s}</div>
+      <div class="recap-bar-track">
+        <div class="recap-bar-fill" style="width:${Math.max((stageCount[s]/maxVal)*100,4)}%;background:${colors[s]||'#3b82f6'}"></div>
+      </div>
+      <div class="recap-bar-val">${stageCount[s]}</div>
+    </div>`).join('');
+}
+
+function renderHomeTable(){
+  const tbody=document.getElementById('home-orders-tbody');
+  const empty=document.getElementById('home-orders-empty');
+  const recent=[...APP.orders].reverse().slice(0,8);
+  if(!recent.length){tbody.innerHTML='';empty.style.display='block';document.getElementById('home-orders-table').style.display='none';return;}
+  document.getElementById('home-orders-table').style.display='table';empty.style.display='none';
+  tbody.innerHTML=recent.map(o=>`<tr onclick="openOrderDetail('${o.id}')" style="cursor:pointer">
+    <td><span class="text-mono">${o.id}</span></td>
+    <td style="font-weight:600">${o.customer}</td>
+    <td>${o.type||'Kaos'} ${o.bahan?'/ '+o.bahan:''}</td>
+    <td style="font-weight:700;color:var(--accent)">${totalQty(o.sizes||{})}</td>
+    <td style="font-weight:700;font-family:var(--mono)">${rp(o.totalPrice)}</td>
+    <td>${statusBadge(o.status)}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();generateInvoice('${o.id}')">🧾</button></td>
+  </tr>`).join('');
+}
+
+// ================================================================
+// STATUS BADGE
+// ================================================================
+function statusBadge(s){
+  const m={Lead:'badge-lead',Konfirmasi:'badge-order','Desain & DP':'badge-teal','Stock Check':'badge-order','DTF/Material':'badge-order','Pre-check':'badge-prod','Produksi':'badge-prod','Laporan Produksi':'badge-prod','Post-check':'badge-prod',Packing:'badge-teal',Siap:'badge-ok',Selesai:'badge-ok'};
+  return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`;
+}
+
+// ================================================================
+// ORDERS
+// ================================================================
+function orderCardHTML(o){
+  const sizes=Object.entries(o.sizes||{}).filter(([,v])=>v>0).map(([k,v])=>`${k}:${v}`).join(' ');
+  const qt=totalQty(o.sizes||{});
+  return`<div class="order-card" onclick="openOrderDetail('${o.id}')">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+      <div><div class="order-id">${o.id}</div><div class="order-name">${o.customer}</div></div>
+      ${statusBadge(o.status)}
+    </div>
+    <div class="order-meta"><span>${o.type||'Kaos'}</span><span>${o.bahan||''}</span>${o.warna?`<span>${o.warna}</span>`:''}<span class="order-qty">${qt} pcs</span></div>
+    ${sizes?`<div class="text-mono" style="color:var(--ink3)">${sizes}</div>`:''}
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="text-sm">${new Date(o.createdAt).toLocaleDateString('id-ID')}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--accent)">${rp(o.totalPrice)}</div>
+    </div>
+  </div>`;
+}
+
+function renderOrders(){
+  const q=(document.getElementById('order-search')?.value||'').toLowerCase();
+  const f=document.getElementById('order-filter')?.value||'';
+  let list=[...APP.orders].reverse();
+  if(q)list=list.filter(o=>o.customer.toLowerCase().includes(q)||o.id.toLowerCase().includes(q)||(o.bahan||'').toLowerCase().includes(q));
+  if(f)list=list.filter(o=>o.status===f);
+  const el=document.getElementById('orders-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Tidak ada order</div></div>';return;}
+  el.innerHTML=list.map(o=>orderCardHTML(o)).join('');
+}
+
+// ================================================================
+// ORDER FORM INIT
+// ================================================================
+function initOrderForm(){
+  // populate selects
+  const sel=document.getElementById('ord-bahan');
+  if(sel)sel.innerHTML='<option value="">Pilih bahan…</option>'+APP.pricing.kaos.map(k=>`<option value="${k.kode}">${k.kode} — ${k.bahan}</option>`).join('');
+  const dtfSel=document.getElementById('ord-dtf');
+  if(dtfSel)dtfSel.innerHTML='<option value="">Tidak ada / Standar</option>'+APP.pricing.dtf.map(d=>`<option value="${d}">${d}</option>`).join('');
+  const jSel=document.getElementById('ord-j-bahan');
+  if(jSel)jSel.innerHTML='<option value="">Pilih bahan…</option>'+APP.pricing.jersey_bahan.map(b=>`<option value="${b}">${b}</option>`).join('');
+  // build size inputs for both Anak (XS-2L) & Dewasa (S-7XL)
+  initSizeBreakdownInputs();
+}
+
+function autoFillApproval(){
+  const kode=document.getElementById('ord-bahan').value;
+  const mat=APP.pricing.kaos.find(k=>k.kode===kode);
+  if(mat){const el=document.getElementById('ord-approval-kaos');if(el&&!el.value){el.value=mat.harga;calcApprovalTotal();}}
+}
+
+function calcApprovalTotal(){
+  const k=parseInt(document.getElementById('ord-approval-kaos')?.value)||0;
+  const s=parseInt(document.getElementById('ord-approval-sablon')?.value)||0;
+  document.getElementById('ord-approval-total').textContent=k||s?rp(k+s)+'/pcs':'—';
+}
+
+function calcJerseyApprovalTotal(){
+  const h=parseInt(document.getElementById('ord-j-approval-harga')?.value)||0;
+  const sc=parseInt(document.getElementById('ord-j-approval-kerah-sc')?.value)||0;
+  document.getElementById('ord-j-approval-total').textContent=h?rp(h+sc)+'/pcs':'—';
+}
+
+function calcJerseyEstimate(){
+  updateBreakdownSubtotals('jsz');
+  calcJerseyApprovalTotal();
+}
+
+function calcOrderEstimate(){
+  const kode=document.getElementById('ord-bahan')?.value;
+  const lengan=document.getElementById('ord-lengan')?.value||'Pendek';
+  updateBreakdownSubtotals('sz');
+  const mat=APP.pricing.kaos.find(k=>k.kode===kode);
+  if(!mat){document.getElementById('ord-price-est').textContent='—';document.getElementById('ord-price-mktg').textContent='—';return;}
+  let total=0,totalMktg=0;
+  // Ukuran anak – gunakan harga_anak; jika 0 fallback ke harga dewasa
+  SIZES_ANAK.forEach(s=>{
+    const qty=parseInt(document.getElementById(sizeInputId('sz',s.key))?.value)||0;
+    if(!qty)return;
+    const harga=mat.harga_anak||mat.harga;
+    const mktg=mat.mktg_anak||mat.mktg;
+    const sc=APP.pricing.surcharge_ukuran.find(su=>su.ukuran===s.key)?.tambahan||0;
+    const lsc=getLenganSurcharge(lengan);
+    total+=qty*(harga+sc+lsc);totalMktg+=qty*(mktg+sc+lsc);
+  });
+  // Ukuran dewasa – gunakan harga standar
+  SIZES_DEWASA.forEach(s=>{
+    const qty=parseInt(document.getElementById(sizeInputId('sz',s.key))?.value)||0;
+    if(!qty)return;
+    const sc=APP.pricing.surcharge_ukuran.find(su=>su.ukuran===s.key)?.tambahan||0;
+    const lsc=getLenganSurcharge(lengan);
+    total+=qty*(mat.harga+sc+lsc);totalMktg+=qty*(mat.mktg+sc+lsc);
+  });
+  document.getElementById('ord-price-est').textContent=total?rp(total):'—';
+  document.getElementById('ord-price-mktg').textContent=totalMktg?rp(totalMktg):'—';
+}
+
+function calcFinalTotal(sizes,pricePerPcs,lengan){
+  let t=0;
+  Object.entries(sizes).forEach(([sz,qty])=>{
+    if(!qty)return;
+    const sc=APP.pricing.surcharge_ukuran.find(s=>s.ukuran===sz)?.tambahan||0;
+    const lsc=getLenganSurcharge(lengan||'Pendek');
+    t+=qty*(pricePerPcs+sc+lsc);
+  });
+  return t;
+}
+
+// ================================================================
+// SAVE ORDER
+// ================================================================
+function saveOrder(){
+  const isJersey=document.getElementById('tab-ord-jersey').classList.contains('active');
+  let order;
+  if(!isJersey){
+    const name=document.getElementById('ord-name').value.trim();
+    const wa=document.getElementById('ord-wa').value.trim();
+    const bahan=document.getElementById('ord-bahan').value;
+    if(!name||!bahan){toast('Nama & bahan wajib','err');return;}
+    const sizes=getSizes('sz');
+    if(!totalQty(sizes)){toast('Minimal 1 pcs','err');return;}
+    const lengan=document.getElementById('ord-lengan').value;
+    const dtf=document.getElementById('ord-dtf').value;
+    const mat=APP.pricing.kaos.find(k=>k.kode===bahan);
+    const aKaos=parseInt(document.getElementById('ord-approval-kaos')?.value)||null;
+    const aSablon=parseInt(document.getElementById('ord-approval-sablon')?.value)||0;
+    const aBy=document.getElementById('ord-approval-by')?.value.trim()||null;
+    const aPricePerPcs=aKaos!==null?aKaos+aSablon:null;
+    let total=0;
+    Object.entries(sizes).forEach(([sz,qty])=>{
+      const sc=APP.pricing.surcharge_ukuran.find(s=>s.ukuran===sz)?.tambahan||0;
+      const lsc=getLenganSurcharge(lengan);
+      const base=(aPricePerPcs!==null?aPricePerPcs:(mat?.harga||0))+sc+lsc;
+      total+=qty*base;
+    });
+    order={id:genId(),type:'Kaos',customer:name,wa,bahan,lengan,dtf,
+      warna:document.getElementById('ord-warna').value,
+      sablonPos:document.getElementById('ord-sablon-pos').value,
+      sizes,total:totalQty(sizes),totalPrice:total,
+      pricing:{approvalKaosPerPcs:aKaos,approvalSablonPerPcs:aSablon,approvalBy:aBy,
+        approvalPricePerPcs:aPricePerPcs,approvedAt:aBy?new Date().toISOString():null,
+        masterSnapshot:mat?{kode:mat.kode,harga:mat.harga,mktg:mat.mktg}:null},
+      notes:document.getElementById('ord-notes').value,
+      status:'Konfirmasi',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
+      precheck:null,actual:{},prodNotes:''};
+  } else {
+    const name=document.getElementById('ord-j-name').value.trim();
+    const wa=document.getElementById('ord-j-wa').value.trim();
+    const bahan=document.getElementById('ord-j-bahan').value;
+    if(!name||!bahan){toast('Nama & bahan wajib','err');return;}
+    const sizes=getSizes('jsz');
+    if(!totalQty(sizes)){toast('Minimal 1 pcs','err');return;}
+    const kerah=document.getElementById('ord-j-kerah').value;
+    const tebal=document.getElementById('ord-j-tebal').value;
+    const aHarga=parseInt(document.getElementById('ord-j-approval-harga')?.value)||null;
+    const aKerahSc=parseInt(document.getElementById('ord-j-approval-kerah-sc')?.value)||0;
+    const aBy=document.getElementById('ord-j-approval-by')?.value.trim()||null;
+    const aPricePerPcs=aHarga!==null?aHarga+aKerahSc:null;
+    let total=0;
+    if(aPricePerPcs!==null){
+      Object.entries(sizes).forEach(([sz,qty])=>{
+        const sc=APP.pricing.surcharge_ukuran.find(s=>s.ukuran===sz)?.tambahan||0;
+        total+=qty*(aPricePerPcs+sc);
+      });
+    }
+    order={id:genId(),type:'Jersey',customer:name,wa,bahan,kerah,tebal,
+      warna:document.getElementById('ord-j-warna').value,
+      sizes,total:totalQty(sizes),totalPrice:total||null,
+      pricing:{approvalHargaPerPcs:aHarga,approvalKerahSurcharge:aKerahSc,approvalBy:aBy,
+        approvalPricePerPcs:aPricePerPcs,approvedAt:aBy?new Date().toISOString():null,tebal},
+      notes:document.getElementById('ord-j-notes').value,
+      status:'Konfirmasi',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
+      precheck:null,actual:{},prodNotes:''};
+  }
+  APP.orders.push(order);save();
+  closeModal('modal-new-order');toast('✅ Order '+order.id+' dibuat');
+  renderHome();renderOrders();renderProdPage();
+}
+
+// ================================================================
+// ORDER DETAIL
+// ================================================================
+function openOrderDetail(id){
+  const o=APP.orders.find(x=>x.id===id);if(!o)return;
+  document.getElementById('detail-modal-title').textContent=o.id+' — '+o.customer;
+  const stIdx=STAGES.indexOf(o.status);
+  const sizes=Object.entries(o.sizes||{}).filter(([,v])=>v>0);
+  const qt=totalQty(o.sizes||{});
+  const p=o.pricing||{};
+  const isApproved=!!p.approvalBy;
+
+  const fields=[['Tipe',o.type],['Customer',o.customer],o.wa?['WA',o.wa]:[],['Bahan',o.bahan||'—'],
+    o.kerah?['Kerah',o.kerah]:[],o.tebal?['Ketebalan','No. '+o.tebal]:[],
+    o.lengan?['Lengan',o.lengan]:[],o.warna?['Warna',o.warna]:[],
+    o.sablonPos?['Posisi Sablon',o.sablonPos]:[],o.dtf?['DTF',o.dtf]:[],
+    ['Total Qty',qt+' pcs'],['Total Harga',rp(o.totalPrice)]].filter(r=>r.length);
+
+  document.getElementById('order-detail-content').innerHTML=`
+    <div style="margin-bottom:10px">${statusBadge(o.status)}</div>
+    <div class="stepper">${STAGES.map((s,i)=>`<div class="step ${i<stIdx?'done':i===stIdx?'active':''}">
+      <div class="step-dot">${i<stIdx?'✓':i+1}</div><div class="step-lbl">${s}</div></div>`).join('')}</div>
+    <div class="card mb-16">
+      <div class="section-title mb-8">Detail</div>
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        ${fields.map(([k,v])=>`<tr><td style="padding:4px 0;color:var(--ink3);width:120px;font-weight:600">${k}</td><td style="padding:4px 0;font-weight:500">${v}</td></tr>`).join('')}
+      </table>
+    </div>
+    ${sizes.length?`<div class="card mb-16"><div class="section-title mb-8">Breakdown Ukuran</div><div style="overflow-x:auto"><table class="size-matrix">
+      <thead><tr>${sizes.map(([k])=>`<th>${k}</th>`).join('')}</tr></thead>
+      <tbody><tr>${sizes.map(([,v])=>`<td>${v}</td>`).join('')}</tr></tbody>
+    </table></div></div>`:''}
+    <div class="approval-banner ${isApproved?'approved':'pending'}">
+      <div style="font-size:12px;font-weight:700;color:${isApproved?'var(--ok)':'var(--warn)'};margin-bottom:8px">
+        ${isApproved?'✅':'⏳'} Pricing Approval ${isApproved?'— Disetujui':'— Menunggu'}
+      </div>
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        ${o.type==='Jersey'?[
+          ['Harga Jersey/pcs S–XL',p.approvalHargaPerPcs!==null?rp(p.approvalHargaPerPcs):'Belum diisi'],
+          p.approvalKerahSurcharge?['Surcharge Kerah',rp(p.approvalKerahSurcharge)]:[],
+          ['Total/pcs S–XL',p.approvalPricePerPcs!==null?`<strong>${rp(p.approvalPricePerPcs)}</strong>`:'Belum disetujui'],
+          ['Ketebalan Kain','No. '+(p.tebal||o.tebal||'—')],
+          p.approvalBy?['Disetujui',p.approvalBy]:[],
+        ].filter(r=>r.length).map(([k,v])=>`<tr><td style="padding:3px 0;color:var(--ink3);width:140px;font-weight:600">${k}</td><td style="padding:3px 0">${v}</td></tr>`).join('')
+        :[
+          ['Harga Kaos/pcs',p.approvalKaosPerPcs!==null?rp(p.approvalKaosPerPcs):'Belum diisi'],
+          p.approvalSablonPerPcs?['Harga Sablon/pcs',rp(p.approvalSablonPerPcs)]:[],
+          ['Total/pcs S–XL',p.approvalPricePerPcs!==null?`<strong>${rp(p.approvalPricePerPcs)}</strong>`:'Belum disetujui'],
+          p.approvalBy?['Disetujui',p.approvalBy]:[],
+        ].filter(r=>r.length).map(([k,v])=>`<tr><td style="padding:3px 0;color:var(--ink3);width:140px;font-weight:600">${k}</td><td style="padding:3px 0">${v}</td></tr>`).join('')}
+      </table>
+      ${!isApproved?`<div class="mt-12"><button class="btn btn-primary btn-sm" onclick="openApprovalEdit('${id}')">✏️ Isi Approval</button></div>`:''}
+      <div id="inline-approval-${id}"></div>
+    </div>
+    ${o.notes?`<div class="card mb-16"><div class="section-title mb-8">Catatan</div><div class="text-sm">${o.notes}</div></div>`:''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" onclick="advanceOrder('${id}')">Lanjut Stage →</button>
+      <button class="btn btn-ghost btn-sm" onclick="generateInvoice('${id}')">🧾 Invoice</button>
+      <button class="btn btn-ghost btn-sm" onclick="openWAForOrder('${id}')">📤 WA</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteOrder('${id}')">Hapus</button>
+    </div>`;
+  openModal('modal-order-detail');
+}
+
+function advanceOrder(id){
+  const o=APP.orders.find(x=>x.id===id);if(!o)return;
+  const idx=STAGES.indexOf(o.status);
+  if(idx<STAGES.length-1){o.status=STAGES[idx+1];o.updatedAt=new Date().toISOString();save();toast('Status → '+o.status);openOrderDetail(id);renderOrders();renderHome();}
+}
+function deleteOrder(id){if(!confirm('Hapus order ini?'))return;APP.orders=APP.orders.filter(o=>o.id!==id);save();closeModal('modal-order-detail');toast('Dihapus','warn');renderOrders();renderHome();renderProdPage();}
+function openWAForOrder(id){closeModal('modal-order-detail');openModal('modal-wa-recap');document.getElementById('wa-order-select').value=id;generateWARecap();}
+
+// ================================================================
+// APPROVAL EDIT INLINE
+// ================================================================
+function openApprovalEdit(id){
+  const o=APP.orders.find(x=>x.id===id);if(!o)return;
+  const p=o.pricing||{};
+  const el=document.getElementById(`inline-approval-${id}`);if(!el)return;
+  const isJersey=o.type==='Jersey';
+  el.innerHTML=isJersey?`
+    <div class="form-row" style="margin-top:12px">
+      <div class="form-group" style="margin-bottom:0"><label>Harga Jersey/pcs S–XL</label>
+        <input class="form-control" type="number" id="ia-harga" value="${p.approvalHargaPerPcs||''}" placeholder="Rp/pcs"></div>
+      <div class="form-group" style="margin-bottom:0"><label>Surcharge Kerah (Rp)</label>
+        <input class="form-control" type="number" id="ia-kerah-sc" value="${p.approvalKerahSurcharge||0}" placeholder="0"></div>
+    </div>
+    <div class="form-group" style="margin-top:10px;margin-bottom:0"><label>Disetujui oleh</label>
+      <input class="form-control" id="ia-by" value="${p.approvalBy||''}" placeholder="Nama Owner/Admin"></div>
+    <button class="btn btn-ok btn-sm" style="margin-top:10px;width:100%" onclick="saveApproval('${id}')">✅ Simpan Approval</button>`
+  :`
+    <div class="form-row" style="margin-top:12px">
+      <div class="form-group" style="margin-bottom:0"><label>Harga Kaos/pcs S–XL</label>
+        <input class="form-control" type="number" id="ia-kaos" value="${p.approvalKaosPerPcs||''}" placeholder="Rp/pcs"></div>
+      <div class="form-group" style="margin-bottom:0"><label>Harga Sablon/pcs</label>
+        <input class="form-control" type="number" id="ia-sablon" value="${p.approvalSablonPerPcs||0}" placeholder="0"></div>
+    </div>
+    <div class="form-group" style="margin-top:10px;margin-bottom:0"><label>Disetujui oleh</label>
+      <input class="form-control" id="ia-by" value="${p.approvalBy||''}" placeholder="Nama Owner/Admin"></div>
+    <button class="btn btn-ok btn-sm" style="margin-top:10px;width:100%" onclick="saveApproval('${id}')">✅ Simpan Approval</button>`;
+}
+
+function saveApproval(id){
+  const o=APP.orders.find(x=>x.id===id);if(!o)return;
+  const by=document.getElementById('ia-by')?.value.trim()||'';
+  if(!by){toast('Nama approver wajib','err');return;}
+  if(!o.pricing)o.pricing={};
+  if(o.type==='Jersey'){
+    const h=parseInt(document.getElementById('ia-harga')?.value)||0;
+    const ksc=parseInt(document.getElementById('ia-kerah-sc')?.value)||0;
+    o.pricing.approvalHargaPerPcs=h;o.pricing.approvalKerahSurcharge=ksc;
+    o.pricing.approvalPricePerPcs=h+ksc;
+    let t=0;Object.entries(o.sizes||{}).forEach(([sz,qty])=>{
+      if(!qty)return;const sc=APP.pricing.surcharge_ukuran.find(s=>s.ukuran===sz)?.tambahan||0;t+=qty*(h+ksc+sc);});
+    o.totalPrice=t;
+  } else {
+    const k=parseInt(document.getElementById('ia-kaos')?.value)||0;
+    const s=parseInt(document.getElementById('ia-sablon')?.value)||0;
+    o.pricing.approvalKaosPerPcs=k;o.pricing.approvalSablonPerPcs=s;
+    o.pricing.approvalPricePerPcs=k+s;
+    o.totalPrice=calcFinalTotal(o.sizes||{},k+s,o.lengan||'Pendek');
+  }
+  o.pricing.approvalBy=by;o.pricing.approvedAt=new Date().toISOString();
+  o.updatedAt=new Date().toISOString();save();
+  toast('✅ Approval disimpan');openOrderDetail(id);renderHome();
+}
+
+// ================================================================
+// PRODUCTION
+// ================================================================
+let currentProdId=null;
+function renderProdPage(){
+  const sel=document.getElementById('prod-order-select');
+  const active=APP.orders.filter(o=>!['Lead','Selesai'].includes(o.status));
+  sel.innerHTML='<option value="">-- Pilih order --</option>'+active.map(o=>`<option value="${o.id}">${o.id} — ${o.customer} [${o.status}]</option>`).join('');
+}
+function loadProdOrder(){
+  const id=document.getElementById('prod-order-select').value;
+  currentProdId=id;const detail=document.getElementById('prod-detail');
+  if(!id){detail.style.display='none';return;}
+  detail.style.display='block';
+  const o=APP.orders.find(x=>x.id===id);if(!o)return;
+  const stIdx=STAGES.indexOf(o.status);
+  document.getElementById('prod-stepper').innerHTML=STAGES.map((s,i)=>
+    `<div class="step ${i<stIdx?'done':i===stIdx?'active':''}"><div class="step-dot">${i<stIdx?'✓':i+1}</div><div class="step-lbl">${s}</div></div>`).join('');
+  renderSizeMatrix(o);
+  document.getElementById('prod-notes').value=o.prodNotes||'';
+}
+function renderSizeMatrix(o){
+  const table=document.getElementById('size-matrix-table');
+  const sizes=Object.keys(o.sizes||{}).filter(k=>(o.sizes[k]||0)>0);const actual=o.actual||{};
+  if(!sizes.length){table.innerHTML='<tbody><tr><td class="text-sm" style="padding:16px;text-align:center">Tidak ada rincian ukuran</td></tr></tbody>';return;}
+  table.innerHTML=`<thead><tr><th>Kategori / Ukuran</th><th>Target</th><th>Aktual</th><th>Δ</th></tr></thead>
+    <tbody>${sizes.map(sz=>{const isAnak=sz.includes('(Anak)');const t=o.sizes[sz]||0,a=actual[sz]||0,d=a-t;
+      return`<tr><td style="font-weight:700;text-align:left"><span class="badge ${isAnak?'badge-teal':'badge-order'}" style="font-size:10px;margin-right:6px">${isAnak?'Anak':'Dewasa'}</span>${sz}</td><td>${t}</td>
+        <td><input type="number" min="0" value="${a}" style="width:50px;border:1.5px solid var(--border);border-radius:4px;padding:2px 4px;background:var(--card);color:var(--ink);font-family:var(--mono)" oninput="updateActual('${sz}',this.value)"></td>
+        <td class="${d>0?'delta-pos':d<0?'delta-neg':'delta-zero'}">${d>0?'+':''}${d||0}</td></tr>`;}).join('')}
+    <tr style="border-top:2px solid var(--border)"><td style="font-weight:700;text-align:left">Total</td>
+      <td style="font-weight:700">${sizes.reduce((s,k)=>s+(o.sizes[k]||0),0)}</td>
+      <td style="font-weight:700">${sizes.reduce((s,k)=>s+(actual[k]||0),0)}</td><td></td></tr></tbody>`;
+}
+function updateActual(sz,val){const o=APP.orders.find(x=>x.id===currentProdId);if(!o)return;if(!o.actual)o.actual={};o.actual[sz]=parseInt(val)||0;}
+function saveMatrix(){save();const o=APP.orders.find(x=>x.id===currentProdId);if(o)renderSizeMatrix(o);toast('Matriks disimpan');}
+function advanceProdStatus(){if(!currentProdId)return;const o=APP.orders.find(x=>x.id===currentProdId);if(!o)return;const idx=STAGES.indexOf(o.status);if(idx<STAGES.length-1){o.status=STAGES[idx+1];o.updatedAt=new Date().toISOString();save();toast('Status → '+o.status);loadProdOrder();renderHome();}}
+function saveProdNotes(){const o=APP.orders.find(x=>x.id===currentProdId);if(!o)return;o.prodNotes=document.getElementById('prod-notes').value;save();toast('Catatan disimpan');}
+
+function renderPrecheck(){
+  const o=APP.orders.find(x=>x.id===currentProdId);
+  const el=document.getElementById('precheck-content');
+  if(!o){el.innerHTML='<div class="empty"><div>Pilih order di halaman Produksi</div></div>';return;}
+  const checks=[{id:'pc1',label:'ID order & customer terverifikasi'},{id:'pc2',label:'Bahan tersedia di stok'},{id:'pc3',label:'Desain/file sudah diterima'},{id:'pc4',label:'Breakdown ukuran dikonfirmasi'},{id:'pc5',label:'DTF/Material siap'},{id:'pc6',label:'Warna kain sesuai order'}];
+  const prev=o.precheck||{};
+  el.innerHTML=`<div class="section-title mb-8">${o.id} — ${o.customer}</div><div class="checklist">
+    ${checks.map(c=>{const d=prev[c.id]||false;return`<div class="check-item ${d?'pass':''}">
+      <span class="check-icon">${d?'✅':'⬜'}</span><span class="check-text">${c.label}</span>
+      <button class="btn btn-ghost btn-sm" onclick="togglePrecheck('${c.id}',${!d})">${d?'Batal':'✓'}</button>
+    </div>`;}).join('')}</div>`;
+}
+function togglePrecheck(id,val){const o=APP.orders.find(x=>x.id===currentProdId);if(!o)return;if(!o.precheck)o.precheck={};o.precheck[id]=val;save();renderPrecheck();}
+function completePrecheck(){
+  const o=APP.orders.find(x=>x.id===currentProdId);if(!o)return;
+  const checks=Object.values(o.precheck||{});
+  if(checks.length<6||!checks.every(v=>v)){toast('Semua item harus dicentang','err');return;}
+  o.status='Produksi';o.updatedAt=new Date().toISOString();save();
+  closeModal('modal-precheck');toast('✅ Pre-check selesai → Produksi');loadProdOrder();renderHome();
+}
+function renderPostcheck(){
+  const o=APP.orders.find(x=>x.id===currentProdId);
+  const el=document.getElementById('postcheck-content');if(!o){el.innerHTML='<div class="empty"><div>Pilih order di halaman Produksi</div></div>';return;}
+  const actual=o.actual||{};const sizes=Object.keys(o.sizes||{});
+  let hasGap=false;
+  const rows=sizes.map(sz=>{const isAnak=sz.includes('(Anak)');const t=o.sizes[sz]||0,a=actual[sz]||0,d=a-t;if(d!==0)hasGap=true;
+    return`<tr><td style="font-weight:700;text-align:left"><span class="badge ${isAnak?'badge-teal':'badge-order'}" style="font-size:10px;margin-right:6px">${isAnak?'Anak':'Dewasa'}</span>${sz}</td><td>${t}</td><td>${a}</td><td class="${d>0?'delta-pos':d<0?'delta-neg':'delta-zero'}">${d>0?'+':''}${d}</td></tr>`;}).join('');
+  const tt=sizes.reduce((s,k)=>s+(o.sizes[k]||0),0),ta=sizes.reduce((s,k)=>s+(actual[k]||0),0);
+  el.innerHTML=`<div class="section-title mb-8">${o.id} — ${o.customer}</div>
+    ${hasGap?'<div class="check-item fail"><span class="check-icon">⚠️</span><span class="check-text fail-text">Ada selisih! Selesaikan sebelum packing.</span></div>'
+    :'<div class="check-item pass"><span class="check-icon">✅</span><span class="check-text">Semua ukuran sesuai target</span></div>'}
+    <div class="divider"></div>
+    <div style="overflow-x:auto"><table class="size-matrix"><thead><tr><th>Ukuran</th><th>Target</th><th>Aktual</th><th>Δ</th></tr></thead>
+    <tbody>${rows}<tr><td style="font-weight:700">Total</td><td style="font-weight:700">${tt}</td><td style="font-weight:700">${ta}</td>
+      <td class="${ta-tt!==0?'delta-neg':'delta-zero'}">${ta-tt>0?'+':''}${ta-tt}</td></tr></tbody></table></div>`;
+}
+function completePostcheck(){
+  const o=APP.orders.find(x=>x.id===currentProdId);if(!o)return;
+  const actual=o.actual||{};const sizes=Object.keys(o.sizes||{});
+  if(sizes.some(sz=>(actual[sz]||0)!==(o.sizes[sz]||0))){toast('Ada selisih — selesaikan dulu','err');return;}
+  o.status='Packing';o.updatedAt=new Date().toISOString();save();
+  closeModal('modal-postcheck');toast('✅ Post-check lulus → Packing');loadProdOrder();renderHome();
+}
+
+// ================================================================
+// PRICING
+// ================================================================
+function renderPricing(){renderKaosTable();renderKaosAnakTable();renderJerseyTable();renderJerseyAnakTable();renderSurchargeTable();renderDTFList();}
+function renderKaosTable(){
+  document.getElementById('kaos-price-table').innerHTML=`<thead><tr><th>Kode</th><th>Bahan</th><th>Internal (S–XL)</th><th>Marketing</th><th>Catatan</th><th></th></tr></thead>
+    <tbody>${APP.pricing.kaos.map((k,i)=>`<tr>
+      <td><span class="text-mono">${k.kode}</span></td><td style="font-weight:600">${k.bahan}</td>
+      <td><span class="price-tag-internal">INT</span> <input type="number" value="${k.harga}" style="border:none;background:transparent;font-weight:700;color:var(--accent);font-family:var(--mono);width:75px" onchange="APP.pricing.kaos[${i}].harga=parseInt(this.value)||0"></td>
+      <td><span class="price-tag-mktg">MKTG</span> <input type="number" value="${k.mktg}" style="border:none;background:transparent;font-weight:700;color:var(--ok);font-family:var(--mono);width:75px" onchange="APP.pricing.kaos[${i}].mktg=parseInt(this.value)||0"></td>
+      <td class="text-sm">${k.catatan||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="APP.pricing.kaos.splice(${i},1);renderKaosTable();renderKaosAnakTable()">✕</button></td>
+    </tr>`).join('')}</tbody>`;
+}
+function renderKaosAnakTable(){
+  document.getElementById('kaos-anak-price-table').innerHTML=`<thead><tr><th>Kode</th><th>Bahan</th><th>Internal Anak (XS–2L)</th><th>Marketing Anak</th><th>Catatan</th></tr></thead>
+    <tbody>${APP.pricing.kaos.map((k,i)=>`<tr>
+      <td><span class="text-mono">${k.kode}</span></td><td style="font-weight:600">${k.bahan}</td>
+      <td><span class="price-tag-internal">INT</span> <input type="number" value="${k.harga_anak||0}" placeholder="0 = pakai harga dewasa" style="border:none;background:transparent;font-weight:700;color:var(--teal);font-family:var(--mono);width:110px" onchange="APP.pricing.kaos[${i}].harga_anak=parseInt(this.value)||0"></td>
+      <td><span class="price-tag-mktg">MKTG</span> <input type="number" value="${k.mktg_anak||0}" placeholder="0 = pakai harga dewasa" style="border:none;background:transparent;font-weight:700;color:var(--ok);font-family:var(--mono);width:110px" onchange="APP.pricing.kaos[${i}].mktg_anak=parseInt(this.value)||0"></td>
+      <td class="text-sm" style="color:var(--ink3);font-size:11px">0 = fallback ke harga dewasa</td>
+    </tr>`).join('')}</tbody>`;
+}
+function renderJerseyTable(){
+  const tebal=document.getElementById('jersey-tebal-filter')?.value||'1';
+  const bahan=APP.pricing.jersey_bahan;const kerah=APP.pricing.jersey_kerah;
+  const rows=bahan.map(b=>{
+    const cells=kerah.map(k=>{const key=`${b}|${k}|${tebal}`,val=APP.pricing.jersey_prices[key]||'';
+      return`<td><input type="number" min="0" placeholder="—" value="${val}" style="width:72px;border:1.5px solid var(--border);border-radius:4px;padding:3px 5px;font-size:12px;background:var(--card);color:var(--ink);font-family:var(--mono)" onchange="APP.pricing.jersey_prices['${b}|${k}|${tebal}']=parseInt(this.value)||0"></td>`;
+    }).join('');
+    return`<tr><td style="font-weight:700;font-size:13px;white-space:nowrap;padding:6px 10px">${b}</td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('jersey-price-table-wrap').innerHTML=`<table class="price-table" style="min-width:700px"><thead><tr><th>Bahan</th>${kerah.map(k=>`<th style="white-space:nowrap;font-size:11px">${k}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+function renderJerseyAnakTable(){
+  const tebal=document.getElementById('jersey-anak-tebal-filter')?.value||'1';
+  const bahan=APP.pricing.jersey_bahan;const kerah=APP.pricing.jersey_kerah;
+  const rows=bahan.map(b=>{
+    const cells=kerah.map(k=>{const key=`${b}|${k}|${tebal}|anak`,val=APP.pricing.jersey_anak_prices[key]||'';
+      return`<td><input type="number" min="0" placeholder="—" value="${val}" style="width:72px;border:1.5px solid var(--teal);border-radius:4px;padding:3px 5px;font-size:12px;background:var(--card);color:var(--teal);font-family:var(--mono)" onchange="APP.pricing.jersey_anak_prices['${b}|${k}|${tebal}|anak']=parseInt(this.value)||0"></td>`;
+    }).join('');
+    return`<tr><td style="font-weight:700;font-size:13px;white-space:nowrap;padding:6px 10px">${b}</td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('jersey-anak-price-table-wrap').innerHTML=`<table class="price-table" style="min-width:700px"><thead><tr><th>Bahan <span style="font-size:10px;color:var(--teal)">(Anak XS–2L)</span></th>${kerah.map(k=>`<th style="white-space:nowrap;font-size:11px">${k}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+function renderSurchargeTable(){
+  document.getElementById('surcharge-size-table').innerHTML=`<thead><tr><th>Ukuran</th><th>Tambahan (Rp)</th></tr></thead>
+    <tbody>${APP.pricing.surcharge_ukuran.map((s,i)=>`<tr><td style="font-weight:700">${s.ukuran}</td>
+      <td><input type="number" value="${s.tambahan}" style="border:none;background:transparent;font-family:var(--mono);font-weight:700;color:var(--accent);width:80px" onchange="APP.pricing.surcharge_ukuran[${i}].tambahan=parseInt(this.value)||0"></td></tr>`).join('')}</tbody>`;
+  document.getElementById('surcharge-model-table').innerHTML=`<thead><tr><th>Model Lengan</th><th>Tambahan (Rp)</th><th></th></tr></thead>
+    <tbody>${APP.pricing.surcharge_model.map((s,i)=>`<tr><td style="font-weight:600">${s.model}</td>
+      <td><input type="number" value="${s.tambahan}" style="border:none;background:transparent;font-family:var(--mono);font-weight:700;color:var(--accent);width:80px" onchange="APP.pricing.surcharge_model[${i}].tambahan=parseInt(this.value)||0"></td>
+      <td><button class="btn btn-danger btn-sm" onclick="APP.pricing.surcharge_model.splice(${i},1);renderSurchargeTable()">✕</button></td></tr>`).join('')}</tbody>`;
+}
+function renderDTFList(){
+  document.getElementById('dtf-list').innerHTML=APP.pricing.dtf.map((d,i)=>`
+    <div class="card" style="display:flex;align-items:center;gap:10px;padding:8px 12px;flex-wrap:wrap">
+      <span style="font-weight:600;font-size:13px">${d}</span>
+      <button class="btn btn-danger btn-sm" onclick="APP.pricing.dtf.splice(${i},1);renderDTFList()">✕</button>
+    </div>`).join('');
+}
+function addMaterial(){
+  const kode=document.getElementById('mat-kode').value.trim().toUpperCase();
+  const bahan=document.getElementById('mat-bahan').value.trim();
+  const harga=parseInt(document.getElementById('mat-harga').value)||0;
+  const mktg=parseInt(document.getElementById('mat-harga-mktg').value)||0;
+  const harga_anak=parseInt(document.getElementById('mat-harga-anak')?.value)||0;
+  const mktg_anak=parseInt(document.getElementById('mat-harga-mktg-anak')?.value)||0;
+  const catatan=document.getElementById('mat-catatan').value.trim();
+  if(!kode||!bahan){toast('Kode & bahan wajib','err');return;}
+  APP.pricing.kaos.push({kode,bahan,harga,mktg,harga_anak,mktg_anak,catatan});save();closeModal('modal-add-material');renderKaosTable();renderKaosAnakTable();toast('Bahan ditambahkan');
+}
+function addDTF(){
+  const nama=document.getElementById('dtf-name').value.trim();
+  if(!nama){toast('Nama wajib','err');return;}
+  APP.pricing.dtf.push(nama);save();closeModal('modal-add-dtf');renderDTFList();toast('Jenis sablon ditambahkan');
+}
+function savePricing(){save();toast('✅ Pricing disimpan');}
+
+// ================================================================
+// LEADS
+// ================================================================
+function renderLeads(){
+  const el=document.getElementById('leads-list');
+  if(!APP.leads.length){el.innerHTML='<div class="empty"><div class="empty-icon">🌱</div><div class="empty-title">Belum ada lead</div><div class="empty-sub">Tambah lead dari WhatsApp</div></div>';return;}
+  el.innerHTML=[...APP.leads].reverse().map((l,ri)=>{
+    const i=APP.leads.length-1-ri;
+    return`<div class="card mb-8">
+      <div class="flex-between mb-8"><div><div style="font-weight:700">${l.name}</div><div class="text-sm">${l.wa||''}</div></div>
+        <span class="badge ${l.status==='Konversi'?'badge-ok':'badge-lead'}">${l.status||'Baru'}</span>
+      </div>
+      <div class="order-meta"><span>Minat: ${l.product}</span>${l.qty?`<span>Est. ${l.qty} pcs</span>`:''}<span>${new Date(l.createdAt).toLocaleDateString('id-ID')}</span></div>
+      ${l.notes?`<div class="text-sm mt-12" style="margin-top:8px">${l.notes}</div>`:''}
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="convertLead(${i})">→ Buat Order</button>
+        ${l.wa?`<a href="https://wa.me/${l.wa.replace(/\D/g,'')}" target="_blank" class="btn btn-ghost btn-sm">📱 WA</a>`:''}
+        <button class="btn btn-danger btn-sm" onclick="APP.leads.splice(${i},1);save();renderLeads();">Hapus</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function saveLead(){
+  const name=document.getElementById('lead-name').value.trim();
+  if(!name){toast('Nama wajib','err');return;}
+  APP.leads.push({name,wa:document.getElementById('lead-wa').value.trim(),product:document.getElementById('lead-product').value,qty:document.getElementById('lead-qty').value,notes:document.getElementById('lead-notes').value,status:'Baru',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+  save();closeModal('modal-new-lead');toast('Lead disimpan');renderLeads();updateMetrics();
+}
+function convertLead(i){
+  const l=APP.leads[i];
+  initOrderForm();
+  setTimeout(()=>{
+    if(l.product==='Jersey'){
+      switchTab('tab-ord-jersey');
+      const jName=document.getElementById('ord-j-name');if(jName)jName.value=l.name||'';
+      const jWa=document.getElementById('ord-j-wa');if(jWa)jWa.value=l.wa||'';
+    }else{
+      switchTab('tab-ord-kaos');
+      const name=document.getElementById('ord-name');if(name)name.value=l.name||'';
+      const wa=document.getElementById('ord-wa');if(wa)wa.value=l.wa||'';
+    }
+  },50);
+  APP.leads[i].status='Konversi';APP.leads[i].updatedAt=new Date().toISOString();save();closeModal('modal-new-lead');openModal('modal-new-order');renderLeads();
+}
+
+// ================================================================
+// WA RECAP
+// ================================================================
+function populateWASelect(){
+  document.getElementById('wa-order-select').innerHTML='<option value="">-- Pilih order --</option>'+[...APP.orders].reverse().map(o=>`<option value="${o.id}">${o.id} — ${o.customer}</option>`).join('');
+}
+function generateWARecap(){
+  const id=document.getElementById('wa-order-select').value;
+  const pre=document.getElementById('wa-recap-text');const btn=document.getElementById('btn-send-wa');
+  if(!id){pre.textContent='Pilih order…';btn.disabled=true;return;}
+  const o=APP.orders.find(x=>x.id===id);if(!o)return;
+  const sizes=Object.entries(o.sizes||{}).filter(([,v])=>v>0).map(([k,v])=>`  ${k}: ${v} pcs`).join('\n');
+  const qt=totalQty(o.sizes||{});
+  const text=`📋 *REKAP ORDER — ${o.id}*\n━━━━━━━━━━━━━━━━━\n👤 Customer  : ${o.customer}\n📱 WA         : ${o.wa||'—'}\n📦 Produk     : ${o.type||'Kaos'}\n🧵 Bahan      : ${o.bahan||'—'}${o.kerah?'\n👔 Kerah      : '+o.kerah:''}${o.tebal?'\n📏 Ketebalan  : No.'+o.tebal:''}${o.lengan?'\n💪 Lengan     : '+o.lengan:''}${o.warna?'\n🎨 Warna      : '+o.warna:''}${o.sablonPos?'\n🖨️  Sablon     : '+o.sablonPos:''}${o.dtf?'\n✨ DTF        : '+o.dtf:''}\n━━━━━━━━━━━━━━━━━\n📐 Ukuran:\n${sizes}\n━━━━━━━━━━━━━━━━━\n📦 Total      : *${qt} pcs*\n💰 Total Harga: *${rp(o.totalPrice)}*\n📌 Status     : ${o.status}\n━━━━━━━━━━━━━━━━━\n${o.notes?'📝 Catatan: '+o.notes+'\n':''}Mohon konfirmasi order ini 🙏`;
+  pre.textContent=text;btn.disabled=!o.wa;btn._wa=o.wa;btn._text=text;
+}
+function copyRecap(){navigator.clipboard.writeText(document.getElementById('wa-recap-text').textContent).then(()=>toast('Di-copy ✅')).catch(()=>{});}
+function sendWA(){const btn=document.getElementById('btn-send-wa');if(!btn._wa)return;window.open(`https://wa.me/${btn._wa.replace(/\D/g,'')}?text=${encodeURIComponent(btn._text||'')}`, '_blank');}
+
+// ================================================================
+// INVOICE
+// ================================================================
+let _invoiceId=null;
+function generateInvoice(id){
+  const o=APP.orders.find(x=>x.id===id);if(!o)return;
+  _invoiceId=id;
+  const p=o.pricing||{};
+  const sizes=Object.entries(o.sizes||{}).filter(([,v])=>v>0);
+  const isJersey=o.type==='Jersey';
+  const basePerPcs=p.approvalPricePerPcs||(isJersey?0:(p.masterSnapshot?.harga||0));
+  const rows=sizes.map(([sz,qty])=>{
+    const sc=APP.pricing.surcharge_ukuran.find(s=>s.ukuran===sz)?.tambahan||0;
+    const lsc=isJersey?0:getLenganSurcharge(o.lengan||'Pendek');
+    const ppc=basePerPcs+sc+lsc;
+    return{sz,qty,sc,lsc,ppc,sub:qty*ppc};
+  });
+  const grand=rows.reduce((s,r)=>s+r.sub,0);
+  const qt=rows.reduce((s,r)=>s+r.qty,0);
+  const now=new Date();
+  const invNo=`INV-${o.id}-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+  document.getElementById('invoice-content').innerHTML=`
+    <div id="inv-print" style="font-family:'Plus Jakarta Sans',sans-serif">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #e4e6ef">
+        <div><div style="font-size:22px;font-weight:800">S<span style="color:#2563eb">O</span>S</div><div style="font-size:11px;color:#7a7f94">Smart Order System</div></div>
+        <div style="text-align:right"><div style="font-size:18px;font-weight:800;color:#2563eb">INVOICE</div>
+          <div style="font-size:12px;color:#7a7f94;font-family:monospace">${invNo}</div>
+          <div style="font-size:11px;color:#7a7f94">${now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+        <div style="background:#f5f6fa;border-radius:8px;padding:12px">
+          <div style="font-size:10px;font-weight:700;color:#7a7f94;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Kepada</div>
+          <div style="font-weight:700;font-size:15px">${o.customer}</div>
+          ${o.wa?`<div style="font-size:12px;color:#3a3d4a">WA: ${o.wa}</div>`:''}
+        </div>
+        <div style="background:#f5f6fa;border-radius:8px;padding:12px">
+          <div style="font-size:10px;font-weight:700;color:#7a7f94;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Detail Order</div>
+          ${[['ID',`<span style="font-family:monospace;font-weight:700">${o.id}</span>`],['Produk',o.type],['Bahan',o.bahan||'—'],
+            o.kerah?['Kerah',o.kerah]:[],o.tebal?['Ketebalan','No. '+o.tebal]:[],
+            o.lengan?['Lengan',o.lengan]:[],o.warna?['Warna',o.warna]:[],
+            o.dtf?['DTF',o.dtf]:[]].filter(r=>r.length)
+            .map(([k,v])=>`<div style="font-size:12px;display:flex;gap:6px"><span style="color:#7a7f94;min-width:65px">${k}:</span><span style="font-weight:600">${v}</span></div>`).join('')}
+        </div>
+      </div>
+      ${p.approvalBy?`<div style="background:#dcfce7;border:1px solid #16a34a;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:14px">✅ <strong>Disetujui: ${p.approvalBy}</strong> — ${p.approvedAt?new Date(p.approvedAt).toLocaleDateString('id-ID'):'—'}</div>`
+      :`<div style="background:#fef3c7;border:1px solid #d97706;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:14px">⏳ Belum ada Pricing Approval</div>`}
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px">
+        <thead><tr style="background:#f5f6fa">
+          ${['Ukuran','Qty','Harga/pcs','Subtotal'].map(h=>`<th style="padding:8px 10px;border-bottom:2px solid #e4e6ef;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#7a7f94;text-align:${h==='Ukuran'?'left':'right'}">${h}</th>`).join('')}
+        </tr></thead>
+        <tbody>${rows.map((r,i)=>`<tr style="background:${i%2?'#f9fafb':'#fff'}">
+          <td style="padding:8px 10px;font-weight:700;border-bottom:1px solid #e4e6ef">${r.sz}${r.sc||r.lsc?`<span style="font-size:10px;color:#7a7f94;font-weight:400;margin-left:3px">${r.sc?'+Rp'+r.sc.toLocaleString('id-ID'):''}${r.lsc?'+Rp'+r.lsc.toLocaleString('id-ID'):''}</span>`:''}</td>
+          <td style="padding:8px 10px;text-align:right;border-bottom:1px solid #e4e6ef">${r.qty}</td>
+          <td style="padding:8px 10px;text-align:right;border-bottom:1px solid #e4e6ef;font-family:monospace">${rp(r.ppc)}</td>
+          <td style="padding:8px 10px;text-align:right;border-bottom:1px solid #e4e6ef;font-weight:600;font-family:monospace">${rp(r.sub)}</td>
+        </tr>`).join('')}</tbody>
+        <tfoot><tr>
+          <td colspan="2" style="padding:10px;font-weight:700;font-size:14px;border-top:2px solid #0f1117">Total (${qt} pcs)</td>
+          <td colspan="2" style="padding:10px;text-align:right;font-weight:800;font-size:17px;color:#2563eb;font-family:monospace;border-top:2px solid #0f1117">${rp(grand)}</td>
+        </tr></tfoot>
+      </table>
+      <div style="background:#f5f6fa;border-radius:8px;padding:12px;font-size:12px;margin-bottom:14px">
+        <div style="font-weight:700;margin-bottom:6px;color:#3a3d4a">Rincian Harga per pcs (S–XL Standar)</div>
+        ${isJersey?[['Harga Jersey/pcs',rp(p.approvalHargaPerPcs||0)],p.approvalKerahSurcharge?['Surcharge Kerah',rp(p.approvalKerahSurcharge)]:[],['Total/pcs',`<strong>${rp(p.approvalPricePerPcs||0)}</strong>`],['Ketebalan','No. '+(o.tebal||'—')]]
+          .filter(r=>r.length).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e4e6ef"><span style="color:#7a7f94">${k}</span><span>${v}</span></div>`).join('')
+          :[['Harga Kaos/pcs',rp(p.approvalKaosPerPcs||p.masterSnapshot?.harga||0)],p.approvalSablonPerPcs?['Harga Sablon',rp(p.approvalSablonPerPcs)]:[],['Total/pcs S–XL',`<strong>${rp(p.approvalPricePerPcs||0)}</strong>`]]
+          .filter(r=>r.length).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e4e6ef"><span style="color:#7a7f94">${k}</span><span>${v}</span></div>`).join('')}
+        <div style="font-size:11px;color:#7a7f94;margin-top:5px">*2XL ke atas dikenakan surcharge ukuran</div>
+      </div>
+      ${o.notes?`<div style="border:1px solid #e4e6ef;border-radius:8px;padding:10px;font-size:12px;margin-bottom:12px"><strong>Catatan:</strong> ${o.notes}</div>`:''}
+      <div style="text-align:center;font-size:11px;color:#7a7f94;margin-top:12px;padding-top:10px;border-top:1px solid #e4e6ef">
+        Terima kasih atas kepercayaan Anda 🙏 &nbsp;|&nbsp; Digenerate oleh SOS
+      </div>
+    </div>`;
+  openModal('modal-invoice');
+}
+function printInvoice(){
+  const c=document.getElementById('inv-print')?.innerHTML;if(!c)return;
+  const w=window.open('','_blank','width=820,height=920');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice SOS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>body{font-family:'Plus Jakarta Sans',sans-serif;margin:0;padding:32px;max-width:720px;margin:0 auto;color:#0f1117}@media print{body{padding:16px}@page{margin:10mm}}</style>
+    </head><body>${c}<script>window.onload=function(){window.print()}<\/script></body></html>`);
+  w.document.close();
+}
+function copyInvoiceWA(){if(_invoiceId){populateWASelect();document.getElementById('wa-order-select').value=_invoiceId;generateWARecap();copyRecap();}}
+
+// ================================================================
+// INIT
+// ================================================================
+document.addEventListener('DOMContentLoaded',()=>{renderHome();renderProdPage();});
+</script>
+<!-- --------------------------------------------------------------
+     Existing script tags (your app logic) are above this line.
+     -------------------------------------------------------------- -->
+<script src="app.js"></script>
+</body>
+</html>
+
+</body>
+</html>

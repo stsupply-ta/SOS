@@ -1,0 +1,22 @@
+# Berkas/folder yang TIDAK ikut di-upload ke Vercel.
+# Vercel otomatis meng-install dependency dari package.json,
+# jadi node_modules tidak perlu ikut.
+
+node_modules
+.vercel
+.git
+.gitignore
+
+# Rahasia / konfigurasi lokal (WAJIB tidak ikut upload)
+.env
+.env.*
+*.env
+*.log
+
+# Data & skrip khusus development lokal
+data.json
+server.js
+start.bat
+
+# Dokumentasi (tidak perlu_runtime)
+README.md
